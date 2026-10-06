@@ -1,0 +1,21 @@
+header {
+    background-color: black;
+    padding: 2rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 1200px;
+}
+
+.logo {
+    display: flex;
+    gap: 1rem
+}
+
+h1 {
+    color: white;
+    font-size: 36px;
+    font-weight: 900;
+}
