@@ -6,3 +6,7 @@
     font-family: "Roboto", sans-serif;
     font-optical-sizing: auto;
 }
+
+body {
+    background: linear-gradient(180deg,#111F10 0%, rgba(0, 0, 0, 1) 100%);
+}

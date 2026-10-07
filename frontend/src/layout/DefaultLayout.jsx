@@ -1,19 +1,20 @@
-import './default-layout.css'
+import styles from './default-layout.module.css'
 import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
+import Footer from '../components/footer/Footer';
 
 function DefaultLayout() {
   return (
-    <div>
+    <div className={styles.container}>
       <Header />
-
-      <main>
-        <Outlet />
+      
+      <main className={styles.stretcher}>
+        <div className={styles.maxWidth}>
+          <Outlet />
+        </div>
       </main>
 
-      <footer>
-        <p>&copy; 2026 - Todos os direitos reservados</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

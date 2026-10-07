@@ -1,0 +1,17 @@
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.footer > div {
+    flex-grow: 1;
+    max-width: 1200px;
+}
+
+.footer p {
+    color: white;
+}
+
+.footer > div > img {
+    width: 100%;
+}
