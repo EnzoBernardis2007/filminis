@@ -1,14 +1,14 @@
 import styles from "./landpage.module.css";
+import commonStyles from '../../app.module.css'
 import img from "../../assets/image.png";
 import { useEffect, useState } from "react";
 import { movies } from "../../services/api";
-import posterPlaceholder from '../../assets/poster.png'
+import posterPlaceholder from "../../assets/poster.png";
 
 function Card({ id, url, title, date }) {
-
   const handleImageError = (e) => {
-    e.target.src = posterPlaceholder
-  }
+    e.target.src = posterPlaceholder;
+  };
   return (
     <article className={styles.movieCard}>
       <img onError={handleImageError} src={url} alt={title} />
@@ -17,21 +17,21 @@ function Card({ id, url, title, date }) {
         <span>({date})</span>
       </div>
     </article>
-  )
+  );
 }
 
 function Landpage() {
-  const [moviesList, setMoviesList] = useState([])
+  const [moviesList, setMoviesList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await movies()
-      console.log(data)
-      setMoviesList(data)
-    }
+      const data = await movies();
+      console.log(data);
+      setMoviesList(data);
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   return (
     <div className={styles.center}>
@@ -47,11 +47,17 @@ function Landpage() {
       </section>
 
       <section className={`${styles.fillWidth} ${styles.section}`}>
-        <h2 className={styles.sectionTitle}>Populares</h2>
+        <h2 className={commonStyles.sectionTitle}>Populares</h2>
         <div className={styles.movieList}>
-          {
-            moviesList.slice(0, 5).map((el) => <Card key={el.id} id={el.id} url={el.imagem} title={el.titulo} date={el.ano} />)
-          }
+          {moviesList.slice(0, 5).map((el) => (
+            <Card
+              key={el.id}
+              id={el.id}
+              url={el.imagem}
+              title={el.titulo}
+              date={el.ano}
+            />
+          ))}
         </div>
       </section>
 

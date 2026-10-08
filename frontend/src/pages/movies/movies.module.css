@@ -1,0 +1,64 @@
+.cardContainer {
+    background-color: #122111;
+    display: flex;
+    color: white;
+    border: 2px solid #284A2F;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cardContainer > img {
+    width: 33%;
+    aspect-ratio: 17 / 25; 
+    object-fit: cover;
+    display: block;
+}
+
+.cardContainer > div {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.cardContainer > div > dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    margin: 0;
+}
+
+.cardContainer > div > dl > dt {
+    color: #90B090;
+    font-size: 14px;
+}
+
+.cardContainer > div > dl > dd {
+    color: white;
+    font-size: 14px;
+    margin: 0;
+}
+
+.cardContainer > div > p {
+    color: #90B090;
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+}
+
+.cardContainer > div > p:nth-child(1) {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.gridView {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    gap: 16px;
+}
