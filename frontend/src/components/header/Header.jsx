@@ -3,8 +3,9 @@ import SvgLogo from '../svg-as-code/SvgLogo.jsx'
 
 function HeaderLink({ icon, title, href }) {
     return (
-        <>
-        </>
+        <li>
+            {title}
+        </li>
     )
 }
 
@@ -18,7 +19,7 @@ function Header() {
                 </div>
                 <nav>
                     <ul>
-
+                        
                     </ul>
                 </nav>
             </div>

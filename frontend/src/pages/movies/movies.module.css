@@ -20,6 +20,7 @@
     flex-direction: column;
     gap: 6px;
     flex: 1;
+    min-width: 0;
 }
 
 .cardContainer > div > dl {
@@ -56,9 +57,94 @@
     font-weight: 500;
 }
 
+.cardContainer > div > .title {
+    flex: 1;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .gridView {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(1, 1fr);
     gap: 16px;
+}
+
+.section {
+    display: flex;
+    gap: 1.5rem;
+    flex-direction: column;
+    align-items: center; /* Centraliza o título, o grid e a paginação horizontalmente */
+    width: 100%;
+    max-width: 1200px; /* Opcional: limita a largura máxima para manter o layout elegante */
+    margin: 0 auto;    /* Centraliza a seção inteira na página */
+    padding: 20px;
+}
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+  width: 100%;
+}
+
+.prevButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff00;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prevButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.arrowIcon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 8px;
+}
+
+.pageButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.activePage {
+  background-color: #1cc853;
+  color: #00340B;
+  border: 2px solid #007925;
+}
+
+.inactivePage {
+  background-color: #ffffff00;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.inactivePage:hover {
+  color: #1cc853;
+  border: 2px solid #1cc853;
 }
