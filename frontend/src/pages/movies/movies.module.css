@@ -74,7 +74,6 @@
     display: flex;
     gap: 1.5rem;
     flex-direction: column;
-    align-items: center; /* Centraliza o título, o grid e a paginação horizontalmente */
     width: 100%;
     max-width: 1200px; /* Opcional: limita a largura máxima para manter o layout elegante */
     margin: 0 auto;    /* Centraliza a seção inteira na página */
@@ -147,4 +146,17 @@
 .inactivePage:hover {
   color: #1cc853;
   border: 2px solid #1cc853;
+}
+
+.buttonGroup {
+    border: 2px solid #ffffff;
+    width: fit-content;
+}
+
+.buttonGroup > button {
+    border: none;
+    background: none;
+    color: #ffffff;
+    height: 48px;
+    width: 48px;
 }

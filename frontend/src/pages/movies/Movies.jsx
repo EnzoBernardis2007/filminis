@@ -82,6 +82,12 @@ export default function Movies() {
   return (
     <>
       <section className={styles.section}>
+        <div>
+          <div class="btn-group" role="group" className={styles.buttonGroup}>
+            <button type="button">Lista</button>
+            <button type="button">Mosaico</button>
+          </div>
+        </div>
         <h2 className={commonStyles.sectionTitle}>Catálogo de Filmes</h2>
         <div className={styles.gridView}>
           {currentMovies.map((el) => (
