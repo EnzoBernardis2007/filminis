@@ -148,9 +148,16 @@
   border: 2px solid #1cc853;
 }
 
+.toolbar {
+  gap: 12px;
+  align-items: end;
+}
+
 .buttonGroup {
     border: 2px solid #ffffff;
     width: fit-content;
+    border-radius: 8px;
+    height: fit-content;
 }
 
 .buttonGroup > button {
@@ -159,4 +166,49 @@
     color: #ffffff;
     height: 48px;
     width: 48px;
+}
+
+.buttonGroup > .isActive {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.searchbar {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+}
+
+.searchbar > label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.searchbar > div {
+  display: flex;
+  border: 2px solid #284A2F;
+  border-radius: 8px;
+  object-fit: cover;
+  overflow: hidden;
+  height: 48px;
+}
+
+.searchbar > div > input {
+  border: none;
+  flex: 1;
+  background-color: #111F10;
+  padding: 0 24px;
+  color: #ffffff;
+}
+
+.searchbar > div > input::placeholder {
+  color: #90B090;
+}
+
+.searchbar > div > button {
+  background-color: #24D44A;
+  width: 48px;
+  height: 100%;
+  border: none;
 }

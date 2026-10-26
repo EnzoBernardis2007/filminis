@@ -7,8 +7,8 @@ import posterPlaceholder from "../../assets/poster.png";
 function timeToMinutes(timeStr) {
   if (!timeStr) return 0;
   const parts = timeStr.split(":");
-  const hours = parseInt(parts[0], 10);
-  const minutes = parseInt(parts[1], 10);
+  const hours = parseInt(parts[0], 10) || 0;
+  const minutes = parseInt(parts[1], 10) || 0;
 
   return hours * 60 + minutes;
 }
@@ -25,9 +25,10 @@ function Card({
   const handleImageError = (e) => {
     e.target.src = posterPlaceholder;
   };
+
   return (
     <article className={styles.cardContainer}>
-      <img src={image} onError={handleImageError} alt="" />
+      <img src={image} onError={handleImageError} alt={title || "Poster do filme"} />
       <div>
         <p title={title} className={styles.title}>{title}</p>
         <dl>
@@ -47,21 +48,36 @@ function Card({
 export default function Movies() {
   const [moviesList, setMoviesList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isGrid, setIsGrid] = useState(true);
+  const [keyword, setKeyword] = useState("");
   const itemsPerPage = 9; 
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await movies();
-      console.log(data);
-      setMoviesList(data);
+      try {
+        const data = await movies();
+        setMoviesList(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Erro ao carregar os filmes:", error);
+      }
     };
 
     fetchData();
   }, []);
 
-  const totalPages = Math.ceil(moviesList.length / itemsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword]);
+
+  const searchedMovieList = Array.isArray(moviesList)
+    ? moviesList.filter((el) =>
+        el.titulo?.trim().toLowerCase().includes(keyword.trim().toLowerCase())
+      )
+    : [];
+
+  const totalPages = Math.ceil(searchedMovieList.length / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentMovies = moviesList.slice(startIndex, startIndex + itemsPerPage);
+  const currentMovies = searchedMovieList.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -79,17 +95,52 @@ export default function Movies() {
     }
   };
 
+  const handleGrid = (gridState) => {
+    setIsGrid(gridState);
+  };
+
+  const handleSearch = (event) => {
+    setKeyword(event.target.value);
+  };
+
   return (
     <>
       <section className={styles.section}>
-        <div>
-          <div class="btn-group" role="group" className={styles.buttonGroup}>
-            <button type="button">Lista</button>
-            <button type="button">Mosaico</button>
+        <div className={`${commonStyles.flex} ${styles.toolbar}`}>
+          <div className={styles.searchbar}>
+            <label htmlFor="search-input">Pesquisar</label>
+            <div>
+              <input 
+                id="search-input"
+                onChange={handleSearch} 
+                type="search" 
+                value={keyword}
+                placeholder="Ex: Matrix" 
+              />
+              <button type="button">Pesquisar</button>
+            </div>
+          </div>
+          <div role="group" className={styles.buttonGroup}>
+            <button 
+              className={isGrid ? styles.isActive : ""} 
+              type="button"
+              onClick={() => handleGrid(true)}
+            >
+              Mosaico
+            </button>
+            <button 
+              className={!isGrid ? styles.isActive : ""} 
+              type="button"
+              onClick={() => handleGrid(false)}
+            >
+              Lista
+            </button>
           </div>
         </div>
+
         <h2 className={commonStyles.sectionTitle}>Catálogo de Filmes</h2>
-        <div className={styles.gridView}>
+        
+        <div className={isGrid ? styles.gridView : styles.listView}>
           {currentMovies.map((el) => (
             <Card
               key={el.id}
@@ -104,7 +155,7 @@ export default function Movies() {
           ))}
         </div>
 
-        {totalPages > 0 && (
+        {totalPages > 1 && (
           <nav className={styles.paginationContainer} aria-label="Navegação de página">
             <button
               onClick={handlePrevious}
