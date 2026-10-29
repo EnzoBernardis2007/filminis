@@ -50,7 +50,7 @@ export default function Movies() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isGrid, setIsGrid] = useState(true);
   const [keyword, setKeyword] = useState("");
-  const itemsPerPage = 9; 
+  const itemsPerPage = isGrid ? 9 : 12; 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,20 +140,46 @@ export default function Movies() {
 
         <h2 className={commonStyles.sectionTitle}>Catálogo de Filmes</h2>
         
-        <div className={isGrid ? styles.gridView : styles.listView}>
-          {currentMovies.map((el) => (
-            <Card
-              key={el.id}
-              id={el.id}
-              title={el.titulo}
-              releaseYear={el.ano}
-              duration={el.duracao}
-              categories={el.categorias}
-              synopsis={el.sinopse}
-              image={el.imagem}
-            />
-          ))}
-        </div>
+        {
+          isGrid ? (
+            <div className={styles.gridView}>
+              {currentMovies.map((el) => (
+                <Card
+                  key={el.id}
+                  id={el.id}
+                  title={el.titulo}
+                  releaseYear={el.ano}
+                  duration={el.duracao}
+                  categories={el.categorias}
+                  synopsis={el.sinopse}
+                  image={el.imagem}
+                />
+              ))}
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th scope="col">Título</th>
+                  <th scope="col">Ano</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col">Duração</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentMovies.map((el, index) => (
+                  <tr key={index}>
+                    <td>{el.titulo}</td>
+                    <td>{el.ano}</td>
+                    <td>{el.categorias.split(",")[0]?.trim()}</td>
+                    <td>{timeToMinutes(el.duracao)} min</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+        
 
         {totalPages > 1 && (
           <nav className={styles.paginationContainer} aria-label="Navegação de página">

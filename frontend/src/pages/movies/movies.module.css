@@ -212,3 +212,40 @@
   height: 100%;
   border: none;
 }
+
+.table {
+  display: grid;
+  grid-template-columns: 1fr fit-content(calc(41px + 48px)) fit-content(calc(128px + 48px)) fit-content(calc(83px + 48px));
+  width: 100%;
+}
+
+.table thead,
+.table tbody,
+.table tr {
+  display: contents;
+}
+
+.table th,
+.table td {
+  padding: 0 24px;
+  height: 48px;
+  text-align: left;
+  border-bottom: 1px solid #B5BFB3;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+}
+
+.table th {
+  font-weight: 500;
+}
+
+.table td {
+  background-color: #0E1C0D;
+}
+
+.table tr:hover td {
+  background-color: #123118; 
+  transition: background-color 0.2s ease; 
+  cursor: pointer;
+}
