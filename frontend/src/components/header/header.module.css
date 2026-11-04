@@ -19,3 +19,17 @@ h1 {
     font-size: 36px;
     font-weight: 900;
 }
+
+.navbar > ul {
+    display: flex;
+    gap: 2rem;
+}
+
+.navbar ul > li > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    gap: 12px;
+}

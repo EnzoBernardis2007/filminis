@@ -1,0 +1,17 @@
+.input {
+    height: 48px;
+    border: 2px solid #526F54;
+    border-radius: 8px;
+    background-color: #111F10;
+    padding: 0 1rem;
+    color: white;
+    font-size: 16px;
+}
+
+.input::placeholder {
+    color: #718A73;
+}
+
+.fullWidth {
+    width: 100%;
+}
