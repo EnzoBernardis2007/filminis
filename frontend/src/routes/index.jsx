@@ -3,6 +3,7 @@ import DefaultLayout from '../layout/DefaultLayout'
 import Landpage from '../pages/landpage/Landpage';
 import Movies from '../pages/movies/Movies';
 import Login from '../pages/login/Login';
+import Profile from '../pages/profile/Profile';
 
 export function AppRoutes() {
   return (
@@ -11,6 +12,7 @@ export function AppRoutes() {
         <Route path="/" element={<DefaultLayout />}>
           <Route index element={<Landpage />} />
           <Route path='movies' element={<Movies />} />
+          <Route path='profile' element={<Profile />} />
         </Route>
         <Route path='login' element={<Login />}/>
       </Routes>

@@ -1,0 +1,26 @@
+.loginContainer {
+  position: relative;
+  overflow: hidden;
+}
+
+.bgSvgWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none; 
+}
+
+.bgSvg {
+  mix-blend-mode: overlay;
+  opacity: 0.15;
+}
+
+.formWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 1; 
+}

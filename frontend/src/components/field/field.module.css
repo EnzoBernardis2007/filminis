@@ -1,4 +1,22 @@
+.fieldContext {
+    display: flex;
+    gap: 6px;
+    flex-direction: column;
+}
+
 .hint {
     font-size: 14px;
     color: #A6A6A6;
+}
+
+.label {
+    color: #fff;
+}
+
+.label > span {
+    color: #FF8080;
+}
+
+.error {
+    color: #FF8080;
 }

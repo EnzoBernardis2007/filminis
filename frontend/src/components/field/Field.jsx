@@ -35,7 +35,7 @@ export const Field = forwardRef(function Field(
         <FieldContext.Provider value={value}>
             <div
                 ref={ref}
-                className={className}
+                className={`${className} ${styles.fieldContext}`}
                 style={style}
                 {...props}
             >
@@ -59,14 +59,14 @@ export const FieldLabel = forwardRef(function FieldLabel(
     return (
         <label
             ref={ref}
-            className={className}
+            className={`${className} ${styles.label}`}
             style={style}
             data-disabled={field?.disabled}
             data-required={field?.required}
             data-invalid={field?.invalid}
             {...props}
         >
-            {children}
+            {children} {field?.required && <span>*</span>}
         </label>
     )
 })
@@ -158,7 +158,7 @@ export const FieldError = forwardRef(function FieldError(
     return (
         <p
             ref={ref}
-            className={className}
+            className={`${className} ${styles.error}`}
             style={style}
             data-invalid={field?.invalid}
             {...props}
