@@ -1,7 +1,7 @@
 import styles from "./movies.module.css";
 import commonStyles from "../../app.module.css";
 import { useState, useEffect } from "react";
-import { movies } from "../../services/api";
+import { useAuth } from "../../contexts/useAuth";
 import posterPlaceholder from "../../assets/poster.png";
 
 function timeToMinutes(timeStr) {
@@ -14,13 +14,12 @@ function timeToMinutes(timeStr) {
 }
 
 function Card({
-  id,
-  title,
-  duration,
-  synopsis,
-  releaseYear,
-  image,
-  categories,
+  titulo,
+  duracao,
+  sinopse,
+  ano,
+  imagem,
+  categorias,
 }) {
   const handleImageError = (e) => {
     e.target.src = posterPlaceholder;
@@ -28,34 +27,35 @@ function Card({
 
   return (
     <article className={styles.cardContainer}>
-      <img src={image} onError={handleImageError} alt={title || "Poster do filme"} />
+      <img src={imagem} onError={handleImageError} alt={titulo || "Poster do filme"} />
       <div>
-        <p title={title} className={styles.title}>{title}</p>
+        <p title={titulo} className={styles.title}>{titulo}</p>
         <dl>
           <dt>Ano</dt>
-          <dd>{releaseYear}</dd>
+          <dd>{ano}</dd>
           <dt>Duração</dt>
-          <dd>{timeToMinutes(duration)} min</dd>
+          <dd>{timeToMinutes(duracao)} min</dd>
           <dt>Categorias</dt>
-          <dd>{categories?.split(",")[0]?.trim()}</dd>
+          <dd>{categorias?.split(",")[0]?.trim()}</dd>
         </dl>
-        <p>{synopsis}</p>
+        <p>{sinopse}</p>
       </div>
     </article>
   );
 }
 
 export default function Movies() {
+  const { api } = useAuth();
   const [moviesList, setMoviesList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isGrid, setIsGrid] = useState(true);
   const [keyword, setKeyword] = useState("");
-  const itemsPerPage = isGrid ? 9 : 12; 
+  const itemsPerPage = isGrid ? 9 : 12;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await movies();
+        const data = await api.movies();
         setMoviesList(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Erro ao carregar os filmes:", error);
@@ -63,11 +63,16 @@ export default function Movies() {
     };
 
     fetchData();
-  }, []);
+  }, [api]);
 
-  useEffect(() => {
+  // Reset to page 1 when keyword changes (derived state pattern)
+  // Using a key on the component would be better but this is a minimal fix
+  const [keywordForPageReset, setKeywordForPageReset] = useState("");
+
+  if (keyword !== keywordForPageReset) {
     setCurrentPage(1);
-  }, [keyword]);
+    setKeywordForPageReset(keyword);
+  }
 
   const searchedMovieList = Array.isArray(moviesList)
     ? moviesList.filter((el) =>
@@ -121,15 +126,15 @@ export default function Movies() {
             </div>
           </div>
           <div role="group" className={styles.buttonGroup}>
-            <button 
-              className={isGrid ? styles.isActive : ""} 
+            <button
+              className={isGrid ? styles.isActive : ""}
               type="button"
               onClick={() => handleGrid(true)}
             >
               Mosaico
             </button>
-            <button 
-              className={!isGrid ? styles.isActive : ""} 
+            <button
+              className={!isGrid ? styles.isActive : ""}
               type="button"
               onClick={() => handleGrid(false)}
             >
@@ -147,12 +152,12 @@ export default function Movies() {
                 <Card
                   key={el.id}
                   id={el.id}
-                  title={el.titulo}
-                  releaseYear={el.ano}
-                  duration={el.duracao}
-                  categories={el.categorias}
-                  synopsis={el.sinopse}
-                  image={el.imagem}
+                  titulo={el.titulo}
+                  duracao={el.duracao}
+                  sinopse={el.sinopse}
+                  ano={el.ano}
+                  imagem={el.imagem}
+                  categorias={el.categorias}
                 />
               ))}
             </div>
@@ -167,11 +172,11 @@ export default function Movies() {
                 </tr>
               </thead>
               <tbody>
-                {currentMovies.map((el, index) => (
-                  <tr key={index}>
+                {currentMovies.map((el) => (
+                  <tr key={el.id}>
                     <td>{el.titulo}</td>
                     <td>{el.ano}</td>
-                    <td>{el.categorias.split(",")[0]?.trim()}</td>
+                    <td>{el.categorias?.split(",")[0]?.trim()}</td>
                     <td>{timeToMinutes(el.duracao)} min</td>
                   </tr>
                 ))}

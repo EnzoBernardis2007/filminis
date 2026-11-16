@@ -1,5 +1,5 @@
 
-import { forwardRef } from "react"
+import { forwardRef, useRef, useCallback, useEffect } from "react"
 import styles from "./button.module.css"
 
 const Button = forwardRef(function Button(
@@ -24,18 +24,28 @@ const Button = forwardRef(function Button(
     },
     ref
 ) {
-    let timeout
+    const timeoutRef = useRef(null)
 
-    function handleClick(e) {
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+        }
+    }, [])
+
+    const handleClick = useCallback((e) => {
         if (disabled || loading) {
             e.preventDefault()
             return
         }
 
         if (debounce > 0) {
-            clearTimeout(timeout)
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
 
-            timeout = setTimeout(() => {
+            timeoutRef.current = setTimeout(() => {
                 onClick?.(e)
             }, debounce)
 
@@ -43,7 +53,7 @@ const Button = forwardRef(function Button(
         }
 
         onClick?.(e)
-    }
+    }, [disabled, loading, debounce, onClick])
 
     const variantClass = styles[variant] ?? styles.primary
 

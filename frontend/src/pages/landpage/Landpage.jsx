@@ -2,36 +2,39 @@ import styles from "./landpage.module.css";
 import commonStyles from '../../app.module.css'
 import img from "../../assets/image.png";
 import { useEffect, useState } from "react";
-import { movies } from "../../services/api";
+import { useAuth } from "../../contexts/useAuth";
 import posterPlaceholder from "../../assets/poster.png";
+import SvgHome from '../../components/svg-as-code/SvgHome.jsx'
+import SvgFilm from '../../components/svg-as-code/SvgFilm.jsx'
 
-function Card({ id, url, title, date }) {
+function Card({ image, title, year }) {
   const handleImageError = (e) => {
     e.target.src = posterPlaceholder;
   };
   return (
     <article className={styles.movieCard}>
-      <img onError={handleImageError} src={url} alt={title} />
+      <img onError={handleImageError} src={image} alt={title} />
       <div>
         <p>{title}</p>
-        <span>({date})</span>
+        <span>({year})</span>
       </div>
     </article>
   );
 }
 
 function Landpage() {
+  const { api } = useAuth();
   const [moviesList, setMoviesList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await movies();
+      const data = await api.movies();
       console.log(data);
       setMoviesList(data);
     };
 
     fetchData();
-  }, []);
+  }, [api]);
 
   return (
     <div className={styles.center}>
@@ -53,9 +56,9 @@ function Landpage() {
             <Card
               key={el.id}
               id={el.id}
-              url={el.imagem}
+              image={el.imagem}
               title={el.titulo}
-              date={el.ano}
+              year={el.ano}
             />
           ))}
         </div>
@@ -95,7 +98,7 @@ function Landpage() {
         <div className={styles.valuesContainer}>
           <article>
             <div>
-              <img src="qualquersource" alt="" />
+              <SvgHome size={32} />
               <p>Colaboração</p>
             </div>
             <p>
@@ -106,7 +109,7 @@ function Landpage() {
 
           <article>
             <div>
-              <img src="qualquersource" alt="" />
+              <SvgFilm size={32} />
               <p>Curadoria</p>
             </div>
             <p>
@@ -117,7 +120,7 @@ function Landpage() {
 
           <article>
             <div>
-              <img src="qualquersource" alt="" />
+              <span role="img" aria-label="paixão">❤️</span>
               <p>Paixão</p>
             </div>
             <p>
@@ -128,7 +131,7 @@ function Landpage() {
 
           <article>
             <div>
-              <img src="qualquersource" alt="" />
+              <span role="img" aria-label="liberdade">🕊️</span>
               <p>Liberdade</p>
             </div>
             <p>

@@ -1,5 +1,6 @@
 import styles from './header.module.css'
 import commonStyles from '../../app.module.css'
+import { Link } from 'react-router-dom'
 import SvgLogo from '../svg-as-code/SvgLogo.jsx'
 import SvgHome from '../svg-as-code/SvgHome.jsx'
 import SvgFilm from '../svg-as-code/SvgFilm.jsx'
@@ -7,10 +8,10 @@ import SvgFilm from '../svg-as-code/SvgFilm.jsx'
 function HeaderLink({ icon, title, path }) {
     return (
         <li>
-            <a href={path}>
+            <Link to={path}>
                 {icon && <span className={styles.icon}>{icon}</span>}
                 <span>{title}</span>
-            </a>
+            </Link>
         </li>
     )
 }

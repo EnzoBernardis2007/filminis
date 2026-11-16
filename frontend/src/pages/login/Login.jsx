@@ -4,13 +4,14 @@ import { Field, FieldLabel, FieldError, FieldHint } from "../../components/field
 import Input from "../../components/input/Input"
 import styles from './login.module.css'
 import commonStyles from '../../app.module.css'
-import { useState } from "react"
-import { useAuth } from "../../contexts/AuthContext"
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from "react"
+import { useAuth } from "../../contexts/useAuth"
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function Login() {
-    const { login } = useAuth()
+    const { login, isAuthenticated } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -18,7 +19,23 @@ function Login() {
     const [hasAttemptedLogin, setHasAttemptedLogin] = useState(false)
 
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    const isPasswordValid = password.length > 0 && hasAttemptedLogin
+    const isPasswordValid = hasAttemptedLogin // && password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)
+
+    // Get the intended destination from location state (set by ProtectedRoute)
+    const from = location.state?.from?.pathname || "/"
+    const fromRef = useRef(from)
+
+    // Keep ref in sync with from (without rendering)
+    useEffect(() => {
+        fromRef.current = from
+    }, [from])
+
+    // Navigate after successful authentication (ensures state has propagated)
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate(fromRef.current, { replace: true })
+        }
+    }, [isAuthenticated, navigate])
 
     const handleEmail = (e) => {
         setEmail(e.target.value)
@@ -46,9 +63,8 @@ function Login() {
         setLoading(true)
 
         try {
-            const data = await login(email, password)
-            
-            navigate("/")
+            await login(email, password)
+            // Navigation happens via useEffect when isAuthenticated becomes true
         } catch (error) {
             console.error("Erro ao realizar login:", error)
         } finally {

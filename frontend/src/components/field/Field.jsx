@@ -1,13 +1,10 @@
 import {
-  createContext,
   useContext,
   forwardRef
 } from "react"
 
 import styles from "./field.module.css"
-
-const FieldContext = createContext(null)
-const FieldGroupContext = createContext(null)
+import { FieldContext, FieldGroupContext } from "./context"
 
 export const Field = forwardRef(function Field(
     {
@@ -281,11 +278,3 @@ export const FieldAction = forwardRef(function FieldAction(
         </div>
     )
 })
-
-export function useField() {
-    return useContext(FieldContext)
-}
-
-export function useFieldGroup() {
-    return useContext(FieldGroupContext)
-}

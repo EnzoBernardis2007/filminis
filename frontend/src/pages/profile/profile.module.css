@@ -1,0 +1,76 @@
+.profileCard {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+}
+
+.profileInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.profileField {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profileField label {
+    font-size: 14px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profileField span {
+    font-size: 16px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.logoutButton {
+    width: 100%;
+    padding: 12px 24px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.logoutButton:hover {
+    background: #c0392b;
+}
+
+.logoutButton:active {
+    transform: scale(0.98);
+}
+
+.errorContainer {
+    text-align: center;
+    padding: 32px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    border: 1px solid #e74c3c;
+}
+
+.errorContainer p {
+    color: #e74c3c;
+    margin-bottom: 16px;
+}
+
+.errorContainer .logoutButton {
+    background: #3498db;
+    max-width: 200px;
+}
+
+.errorContainer .logoutButton:hover {
+    background: #2980b9;
+}

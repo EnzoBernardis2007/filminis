@@ -3,7 +3,7 @@ import {
 } from "react"
 import styles from './input.module.css'
 
-import { useField } from "../field/Field"
+import { useField } from "../field/hooks"
 
 const Input = forwardRef(function Input(
     {
@@ -24,7 +24,6 @@ const Input = forwardRef(function Input(
         value,
         defaultValue,
         autoComplete = "off",
-        autoCorrect = "off",
         spellCheck = false,
         onChange,
         onBlur,
@@ -62,7 +61,6 @@ const Input = forwardRef(function Input(
             value={value}
             defaultValue={defaultValue}
             autoComplete={autoComplete}
-            autoCorrect={autoCorrect}
             spellCheck={spellCheck}
             onChange={onChange}
             onBlur={onBlur}
