@@ -1,6 +1,6 @@
 import styles from "./landpage.module.css";
 import commonStyles from '../../app.module.css'
-import img from "../../assets/image.png";
+import img from "../../assets/another.png";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/useAuth";
 import posterPlaceholder from "../../assets/poster.png";

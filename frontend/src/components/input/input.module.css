@@ -6,10 +6,24 @@
     padding: 0 1rem;
     color: white;
     font-size: 16px;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .input::placeholder {
     color: #718A73;
+}
+
+.input:disabled,
+.input[data-disabled="true"] {
+    border-color: #3A4D3B;
+    background-color: #1A2A1D;
+    color: #A6B8A8;
+    cursor: not-allowed;
+}
+
+.input:disabled::placeholder,
+.input[data-disabled="true"]::placeholder {
+    color: #6B7D6E;
 }
 
 .fullWidth {

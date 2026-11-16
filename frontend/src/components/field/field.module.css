@@ -7,10 +7,12 @@
 .hint {
     font-size: 14px;
     color: #A6A6A6;
+    transition: color 0.2s ease;
 }
 
 .label {
     color: #fff;
+    transition: color 0.2s ease;
 }
 
 .label > span {
@@ -19,4 +21,26 @@
 
 .error {
     color: #FF8080;
+    transition: color 0.2s ease;
+}
+
+/* Disabled state styles */
+.fieldContext[data-disabled="true"] .label,
+.label[data-disabled="true"] {
+    color: #8A9A8D;
+}
+
+.fieldContext[data-disabled="true"] .hint,
+.hint[data-disabled="true"] {
+    color: #718074;
+}
+
+.fieldContext[data-disabled="true"] .error,
+.error[data-disabled="true"] {
+    color: #A67070;
+}
+
+.fieldContext[data-disabled="true"] .description,
+.description[data-disabled="true"] {
+    color: #718074;
 }

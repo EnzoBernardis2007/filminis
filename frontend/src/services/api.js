@@ -223,5 +223,30 @@ export function createApi(getAuth) {
                 // Ignore logout errors - we'll clear local tokens anyway
             }
         },
+
+        /**
+         * Updates the current user's profile (PATCH /edit/me)
+         * @param {object} profileData - Profile data to update
+         * @param {string} [profileData.nome] - User's first name
+         * @param {string} [profileData.sobrenome] - User's last name
+         * @param {string} [profileData.apelido] - User's nickname
+         * @param {string} [profileData.data_nascimento] - User's birth date (YYYY-MM-DD)
+         * @param {string} [profileData.foto] - User's profile photo URL
+         * @returns {Promise<object>} Success message
+         */
+        async updateProfile(profileData) {
+            const response = await authenticatedFetch('/edit/me', {
+                method: 'PATCH',
+                body: JSON.stringify(profileData),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao atualizar perfil')
+            }
+
+            return data
+        },
     }
 }
