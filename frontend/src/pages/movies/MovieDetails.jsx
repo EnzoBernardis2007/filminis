@@ -1,7 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
-import styles from './movieDetails.module.css'
+import styles from "./movieDetails.module.css";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../../components/accordion/Accordion";
+
+function durationToMinutes(durationStr) {
+  if (!durationStr) return 0;
+  const [hours, minutes] = durationStr.split(":").map(Number);
+  return hours * 60 + minutes;
+}
 
 /**
  * Hook customizado com toda a lógica da página de detalhes do filme
@@ -28,7 +40,7 @@ export function useMovieDetails() {
         setLoading(true);
         setError(null);
         const data = await api.movieById(id);
-        console.log(data)
+        console.log(data);
         setMovie(data);
       } catch (err) {
         console.error("Erro ao carregar filme:", err);
@@ -56,84 +68,171 @@ export function useMovieDetails() {
 
 export default function MovieDetails() {
   const { movie, loading, error, handleBack } = useMovieDetails();
-
-  const [view, setView] = useState('produtoras') // 'produtoras' | 'idiomas'
+  const [activeTab, setActiveTab] = useState("synopsis");
 
   if (loading) return <div>Carregando...</div>;
-  if (error) return <div>Erro: {error} <button onClick={handleBack}>Voltar</button></div>;
-  if (!movie) return <div>Filme não encontrado <button onClick={handleBack}>Voltar</button></div>;
+  if (error)
+    return (
+      <div>
+        Erro: {error} <button onClick={handleBack}>Voltar</button>
+      </div>
+    );
+  if (!movie)
+    return (
+      <div>
+        Filme não encontrado <button onClick={handleBack}>Voltar</button>
+      </div>
+    );
 
   const produtoras = movie.produtoras || [];
   const idiomas = movie.linguagens || [];
+  const diretores = movie.diretores || [];
+  const atores = movie.atores || [];
+
+  const formatter = new Intl.ListFormat("pt-BR", {
+    style: "long",
+    type: "conjunction",
+  });
+
+  const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
   return (
     <div>
       <button onClick={handleBack}>← Voltar</button>
       <div className={styles.grid}>
-        <div>
-          <img className={styles.poster} src={movie.poster} alt={movie.titulo} />
+        <div className={styles.sidebar}>
+          <div className={styles.poster}>
+            <img src={movie.poster} alt={movie.titulo} />
+          </div>
+        </div>
+        <div className={styles.columnTwo}>
+          <div>
+            <h2 className={styles.title}>
+              {movie.titulo} <span>({movie.ano})</span>
+            </h2>
 
-          <div className={styles.tabs}>
-            <button
-              className={view === 'produtoras' ? styles.activeTab : ''}
-              onClick={() => setView('produtoras')}
-            >
-              Produtoras ({produtoras.length})
-            </button>
-            <button
-              className={view === 'idiomas' ? styles.activeTab : ''}
-              onClick={() => setView('idiomas')}
-            >
-              Idiomas ({idiomas.length})
-            </button>
+            <p className={styles.directors}>
+              Dirigido por{" "}
+              <span>
+                {formatter.format(diretores.map((dir) => dir.name || dir.nome))}
+              </span>
+              .
+            </p>
           </div>
 
-          <ul className={styles.list}>
-            {view === 'produtoras' ? (
-              produtoras.map((produtora, index) => (
-                <li key={index}>
-                  <p>{produtora.nome}</p>
-                </li>
-              ))
-            ) : (
-              idiomas.map((idioma, index) => (
-                <li key={index}>{idioma}</li>
-              ))
-            )}
-          </ul>
+         
 
-          {view === 'produtoras' && produtoras.length === 0 && (
-            <p className={styles.empty}>Nenhuma produtora cadastrada</p>
-          )}
-          {view === 'idiomas' && idiomas.length === 0 && (
-            <p className={styles.empty}>Nenhum idioma cadastrado</p>
-          )}
+          <div className={styles.tabGroup}>
+            <div className={styles.tabs} role="tablist" aria-label="Movie tabs">
+              <button
+                className={`${styles.tab} ${
+                  activeTab === "synopsis" ? styles.activateTab : ""
+                }`}
+                role="tab"
+                aria-selected={activeTab === "synopsis"}
+                aria-controls="panel-cast"
+                id="tab-cast"
+                onClick={() => setActiveTab("synopsis")}
+              >
+                Sinopse
+              </button>
+              <button
+                className={`${styles.tab} ${
+                  activeTab === "categories" ? styles.activateTab : ""
+                }`}
+                role="tab"
+                aria-selected={activeTab === "categories"}
+                aria-controls="panel-cast"
+                id="tab-cast"
+                onClick={() => setActiveTab("categories")}
+              >
+                Categorias
+              </button>
+              <button
+                className={`${styles.tab} ${
+                  activeTab === "cast" ? styles.activateTab : ""
+                }`}
+                role="tab"
+                aria-selected={activeTab === "cast"}
+                aria-controls="panel-cast"
+                id="tab-cast"
+                onClick={() => setActiveTab("cast")}
+              >
+                Elenco
+              </button>
+            </div>
+
+            <div
+              role="tabpanel"
+              id="panel-cast"
+              aria-labelledby="tab-cast"
+              hidden={activeTab !== "synopsis"}
+            >
+              <p className={styles.synopsis}>{movie.sinopse}</p>
+            </div>
+
+            <div
+              role="tabpanel"
+              id="panel-cast"
+              aria-labelledby="tab-cast"
+              hidden={activeTab !== "cast"}
+            >
+              {atores.length > 0 ? (
+                <ul className={styles.chips}>
+                  {atores.map((actor, index) => (
+                    <li key={index}>
+                      <p>{actor.nome}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Nenhum elenco registrado</p>
+              )}
+            </div>
+
+            <div
+              role="tabpanel"
+              id="panel-cast"
+              aria-labelledby="tab-cast"
+              hidden={activeTab !== "categories"}
+            >
+              {movie.categorias.length > 0 ? (
+                <ul className={styles.chips}>
+                  {movie.categorias.map((cat, i) => (
+                    <li key={i}>
+                      <p>{cat}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Nenhum elenco registrado</p>
+              )}
+            </div>
+          </div>
         </div>
-        <div>
-          <h2>{movie.titulo} ({movie.ano})</h2>
-          <p><strong>Duração:</strong> {movie.duracao}</p>
-          <p><strong>Status:</strong> {movie.istatus}</p>
-          <p><strong>Orçamento:</strong> {movie.orcamento ? `$${movie.orcamento.toLocaleString()}` : 'Não informado'}</p>
-          <p><strong>Produtora Principal:</strong> {movie.produtora_principal || 'Não informada'}</p>
-
-          <h3>Categorias</h3>
-          <ul>
-            {(movie.categorias || []).map((cat, i) => <li key={i}>{cat}</li>)}
-          </ul>
-
-          <h3>Diretores</h3>
-          <ul>
-            {(movie.diretores || []).map((dir, i) => (
-              <li key={i}>{dir.nome} {dir.genero && `(${dir.genero})`} {dir.paises && `- ${dir.paises}`}</li>
-            ))}
-          </ul>
-
-          <h3>Elenco</h3>
-          <ul>
-            {(movie.atores || []).map((ator, i) => (
-              <li key={i}>{ator.nome} {ator.genero && `(${ator.genero})`} {ator.paises && `- ${ator.paises}`}</li>
-            ))}
-          </ul>
+        <div className={styles.columnThree}>
+          <dl className={styles.info}>
+            <p style={{ gridColumn: 'span 2', color: '#fff', fontWeight: 500, fontSize: 18}}>Informações Adicionais</p>
+            <dt>Duração</dt>
+            <dd>{durationToMinutes(movie.duracao)} min</dd>
+            <dt>Orçamento</dt>
+            <dd>{currencyFormatter.format(movie.orcamento)}</dd>
+            <dt>Idiomas</dt>
+            <div>
+              {movie.linguagens.map((el, i) => (
+                <dd key={i}>{el}</dd>
+              ))}
+            </div>
+            <dt>Produtoras</dt>
+            <div>
+              {produtoras.map((el, i) => (
+                <dd key={i}>{el.nome}</dd>
+              ))}
+            </div>
+          </dl>
         </div>
       </div>
     </div>

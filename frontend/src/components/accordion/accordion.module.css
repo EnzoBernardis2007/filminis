@@ -1,0 +1,122 @@
+.accordion {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.accordionItem {
+    border-bottom: 2px solid #284A2F;
+}
+
+.accordionItem:last-child {
+    border-bottom: none;
+}
+
+.accordionTrigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.accordionTrigger:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.accordionTrigger:focus-visible {
+    outline: none;
+    background-color: rgba(36, 212, 74, 0.1);
+}
+
+.accordionTrigger:disabled,
+.accordionTrigger[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.triggerContent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.triggerIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: #24D44A;
+    transition: transform 150ms ease;
+}
+
+.triggerIconOpen {
+    transform: rotate(180deg);
+}
+
+.accordionContent {
+    padding:  4px 1.25rem 1rem;
+    color: #fff;
+    line-height: 1.6;
+    animation: slideDown 200ms ease-out;
+}
+
+.accordionContent[data-closed="true"] {
+    animation: slideUp 150ms ease-in forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+.single .accordionItem {
+    border-bottom: 2px solid #284A2F;
+}
+
+.single .accordionItem:last-child {
+    border-bottom: none;
+}
+
+.multiple .accordionItem {
+    border-bottom: 2px solid #284A2F;
+}
+
+.multiple .accordionItem:last-child {
+    border-bottom: none;
+}
+
+.readOnly .accordionTrigger {
+    cursor: default;
+}
+
+.readOnly .accordionTrigger:hover {
+    background-color: transparent;
+}
