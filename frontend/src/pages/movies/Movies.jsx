@@ -1,6 +1,7 @@
 import styles from "./movies.module.css";
 import commonStyles from "../../app.module.css";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import posterPlaceholder from "../../assets/poster.png";
 
@@ -20,13 +21,14 @@ function Card({
   ano,
   imagem,
   categorias,
+  onClick,
 }) {
   const handleImageError = (e) => {
     e.target.src = posterPlaceholder;
   };
 
   return (
-    <article className={styles.cardContainer}>
+    <article className={styles.cardContainer} onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
       <img src={imagem} onError={handleImageError} alt={titulo || "Poster do filme"} />
       <div>
         <p title={titulo} className={styles.title}>{titulo}</p>
@@ -46,11 +48,16 @@ function Card({
 
 export default function Movies() {
   const { api } = useAuth();
+  const navigate = useNavigate();
   const [moviesList, setMoviesList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isGrid, setIsGrid] = useState(true);
   const [keyword, setKeyword] = useState("");
   const itemsPerPage = isGrid ? 9 : 12;
+
+  const handleMovieClick = (movieId) => {
+    navigate(`/movies/${movieId}`);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -158,6 +165,7 @@ export default function Movies() {
                   ano={el.ano}
                   imagem={el.imagem}
                   categorias={el.categorias}
+                  onClick={() => handleMovieClick(el.id)}
                 />
               ))}
             </div>
@@ -173,7 +181,7 @@ export default function Movies() {
               </thead>
               <tbody>
                 {currentMovies.map((el) => (
-                  <tr key={el.id}>
+                  <tr key={el.id} onClick={() => handleMovieClick(el.id)} style={{ cursor: 'pointer' }}>
                     <td>{el.titulo}</td>
                     <td>{el.ano}</td>
                     <td>{el.categorias?.split(",")[0]?.trim()}</td>

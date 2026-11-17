@@ -189,6 +189,22 @@ export function createApi(getAuth) {
         },
 
         /**
+         * Fetches a single movie by ID (public endpoint)
+         * @param {string|number} id - Movie ID
+         * @returns {Promise<object>} Movie details
+         */
+        async movieById(id) {
+            const response = await publicFetch(`/filme?id=${id}`)
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao buscar detalhes do filme')
+            }
+
+            return data
+        },
+
+        /**
          * Performs user login
          * @param {string} email - User email
          * @param {string} password - User password
