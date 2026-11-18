@@ -299,5 +299,93 @@ export function createApi(getAuth) {
 
             return data
         },
+
+        // ========== LISTAGEM DE DADOS AUXILIARES (Endpoints públicos) ==========
+
+        /**
+         * Fetches all actors (GET /atores)
+         * @returns {Promise<Array>} List of actors
+         */
+        async actors() {
+            const response = await publicFetch('/atores')
+            return await response.json()
+        },
+
+        /**
+         * Fetches a single actor by ID (GET /ator?id=...)
+         * @param {string|number} id - Actor ID
+         * @returns {Promise<object>} Actor details
+         */
+        async actorById(id) {
+            const response = await publicFetch(`/ator?id=${id}`)
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao buscar detalhes do ator')
+            }
+
+            return data
+        },
+
+        /**
+         * Fetches all directors (GET /diretores)
+         * @returns {Promise<Array>} List of directors
+         */
+        async directors() {
+            const response = await publicFetch('/diretores')
+            return await response.json()
+        },
+
+        /**
+         * Fetches a single director by ID (GET /diretor?id=...)
+         * @param {string|number} id - Director ID
+         * @returns {Promise<object>} Director details
+         */
+        async directorById(id) {
+            const response = await publicFetch(`/diretor?id=${id}`)
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao buscar detalhes do diretor')
+            }
+
+            return data
+        },
+
+        /**
+         * Fetches all categories (GET /categorias)
+         * @returns {Promise<Array>} List of categories
+         */
+        async categories() {
+            const response = await publicFetch('/categorias')
+            return await response.json()
+        },
+
+        /**
+         * Fetches all production companies (GET /produtoras)
+         * @returns {Promise<Array>} List of production companies
+         */
+        async producers() {
+            const response = await publicFetch('/produtoras')
+            return await response.json()
+        },
+
+        /**
+         * Fetches all languages (GET /linguagens)
+         * @returns {Promise<Array>} List of languages
+         */
+        async languages() {
+            const response = await publicFetch('/linguagens')
+            return await response.json()
+        },
+
+        /**
+         * Fetches all countries (GET /paises)
+         * @returns {Promise<Array>} List of countries
+         */
+        async countries() {
+            const response = await publicFetch('/paises')
+            return await response.json()
+        },
     }
 }

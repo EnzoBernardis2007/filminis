@@ -35,7 +35,7 @@ def loadFilminhos():
             "imagem": item[7],
             "istatus":item[8],
             "aprovado_por":item[9],
-            "data_aprov":item[10],
+            "data_aprov": str(item[10]),
             "categorias":item[11]
 
         }

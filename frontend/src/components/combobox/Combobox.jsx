@@ -1,282 +1,247 @@
-import React, {
-    createContext,
-    useContext,
-    useMemo,
-    useState,
-    useRef,
-    useEffect,
-    useCallback
-} from "react"
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 
-import styles from "./combobox.module.css"
+import styles from "./combobox.module.css";
 
-const ComboboxContext = createContext(null)
+const ComboboxContext = createContext(null);
 
 function Combobox({
-    children,
-    options = [],
-    value,
-    defaultValue = null,
-    onValueChange,
-    open,
-    defaultOpen = false,
-    onOpenChange,
-    searchValue,
-    onSearchChange,
-    placeholder = "Buscar...",
-    disabled = false,
-    loading = false,
-    clearable = false,
-    className,
-    style,
-    // New prop: when true, the search input acts as the trigger (autocomplete mode)
-    autocomplete = true
+  children,
+  options = [],
+  value,
+  defaultValue = null,
+  onValueChange,
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  searchValue,
+  onSearchChange,
+  placeholder = "Buscar...",
+  disabled = false,
+  loading = false,
+  clearable = false,
+  className,
+  style,
+  autocomplete = true,
+  multiple = false,
 }) {
-    const [internalValue, setInternalValue] =
-        useState(defaultValue)
+  // Initialize default value as array if multiple, otherwise single value
+  const getInitialValue = () => {
+    if (multiple) {
+      return Array.isArray(defaultValue)
+        ? defaultValue
+        : defaultValue
+        ? [defaultValue]
+        : [];
+    }
+    return defaultValue;
+  };
 
-    const [internalOpen, setInternalOpen] =
-        useState(defaultOpen)
+  const [internalValue, setInternalValue] = useState(getInitialValue);
 
-    const [internalSearch, setInternalSearch] =
-        useState("")
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
 
-    const currentValue =
-        value !== undefined
-            ? value
-            : internalValue
+  const [internalSearch, setInternalSearch] = useState("");
 
-    const currentOpen =
-        open !== undefined
-            ? open
-            : internalOpen
+  const currentValue = value !== undefined ? value : internalValue;
 
-    const currentSearch =
-        searchValue !== undefined
-            ? searchValue
-            : internalSearch
+  const currentOpen = open !== undefined ? open : internalOpen;
 
-    const setValue = (nextValue) => {
-        if (value === undefined) {
-            setInternalValue(nextValue)
-        }
+  const currentSearch =
+    searchValue !== undefined ? searchValue : internalSearch;
 
-        onValueChange?.(nextValue)
+  const setValue = useCallback(
+    (nextValue) => {
+      if (value === undefined) {
+        setInternalValue(nextValue);
+      }
+      onValueChange?.(nextValue);
+    },
+    [value, onValueChange],
+  );
+
+  const setOpen = useCallback(
+    (nextOpen) => {
+      if (open === undefined) {
+        setInternalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [open, onOpenChange],
+  );
+
+  const setSearch = useCallback(
+    (nextSearch) => {
+      if (searchValue === undefined) {
+        setInternalSearch(nextSearch);
+      }
+      onSearchChange?.(nextSearch);
+    },
+    [searchValue, onSearchChange],
+  );
+
+  // Helper to check if an option is selected
+  const isOptionSelected = (optionValue) => {
+    if (multiple) {
+      return Array.isArray(currentValue) && currentValue.includes(optionValue);
+    }
+    return currentValue === optionValue;
+  };
+
+  // Get all selected options
+  const selectedOptions = useMemo(() => {
+    if (multiple) {
+      return Array.isArray(currentValue)
+        ? currentValue
+            .map((v) => options.find((opt) => opt.value === v))
+            .filter(Boolean)
+        : [];
+    }
+    return currentValue
+      ? [options.find((opt) => opt.value === currentValue)].filter(Boolean)
+      : [];
+  }, [currentValue, options, multiple]);
+
+  // For backward compatibility - single selected option
+  const selectedOption = selectedOptions[0] || null;
+
+  const filteredOptions = useMemo(() => {
+    const query = currentSearch.trim().toLowerCase();
+
+    if (!query) {
+      return options;
     }
 
-    const setOpen = (nextOpen) => {
-        if (open === undefined) {
-            setInternalOpen(nextOpen)
+    // Score each option based on relevance
+    // 3 = starts with query (highest priority)
+    // 2 = contains query as word boundary
+    // 1 = contains query anywhere
+    // 0 = fuzzy match (subsequence - characters in order but not necessarily consecutive)
+    const scoredOptions = options.map((option) => {
+      const label = option.label.toLowerCase();
+      let score = 0;
+
+      // Exact prefix match (starts with)
+      if (label.startsWith(query)) {
+        score = 3;
+      }
+      // Word boundary match (query appears after space, hyphen, underscore)
+      else if (new RegExp(`(^|[\\s\\-_])${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}`).test(label)) {
+        score = 2;
+      }
+      // Contains match
+      else if (label.includes(query)) {
+        score = 1;
+      }
+      // Fuzzy match: check if query characters appear in order (subsequence)
+      else {
+        let labelIdx = 0;
+        let queryIdx = 0;
+        while (labelIdx < label.length && queryIdx < query.length) {
+          if (label[labelIdx] === query[queryIdx]) {
+            queryIdx++;
+          }
+          labelIdx++;
         }
-
-        onOpenChange?.(nextOpen)
-    }
-
-    const setSearch = (nextSearch) => {
-        if (searchValue === undefined) {
-            setInternalSearch(nextSearch)
+        if (queryIdx === query.length) {
+          score = 0.5; // Fuzzy match gets lower score
         }
+      }
 
-        onSearchChange?.(nextSearch)
-    }
+      return { option, score };
+    });
 
-    const selectedOption = options.find(
-        (option) => option.value === currentValue
-    )
+    // Filter out non-matches (score 0) and sort by score descending
+    // For ties, maintain original order (stable sort by using original index)
+    return scoredOptions
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || options.indexOf(a.option) - options.indexOf(b.option))
+      .map(({ option }) => option);
+  }, [options, currentSearch]);
 
-    const filteredOptions = useMemo(() => {
-        const query = currentSearch.trim()
+  // Toggle option selection (for multiple mode)
+  const toggleOption = useCallback(
+    (optionValue) => {
+      if (multiple) {
+        const currentArray = Array.isArray(currentValue) ? currentValue : [];
+        const isSelected = currentArray.includes(optionValue);
+        const newValue = isSelected
+          ? currentArray.filter((v) => v !== optionValue)
+          : [...currentArray, optionValue];
+        setValue(newValue);
+      } else {
+        setValue(optionValue);
+      }
+    },
+    [currentValue, multiple, setValue],
+  );
 
-        if (!query) {
-            return options
-        }
+  // Clear all selections
+  const clearAll = useCallback(() => {
+    setValue(multiple ? [] : null);
+    setSearch("");
+  }, [multiple, setValue, setSearch]);
 
-        return options.filter((option) =>
-            option.label
-                .toLowerCase()
-                .includes(query.toLowerCase())
-        )
-    }, [options, currentSearch])
+  const contextValue = {
+    options,
+    filteredOptions,
+    multiple,
 
-    const contextValue = {
-        options,
-        filteredOptions,
+    value: currentValue,
+    setValue,
+    toggleOption,
+    clearAll,
 
-        value: currentValue,
-        setValue,
+    selectedOptions,
+    selectedOption,
+    isOptionSelected,
 
-        search: currentSearch,
-        setSearch,
+    search: currentSearch,
+    setSearch,
 
-        open: currentOpen,
-        setOpen,
+    open: currentOpen,
+    setOpen,
 
-        placeholder,
-        disabled,
-        loading,
-        clearable,
-        autocomplete,
+    placeholder,
+    disabled,
+    loading,
+    clearable,
+    autocomplete,
+  };
 
-        selectedOption
-    }
-
-    return (
-        <ComboboxContext.Provider value={contextValue}>
-            <div
-                className={className}
-                style={style}
-            >
-                {children}
-            </div>
-        </ComboboxContext.Provider>
-    )
-}
-
-function useCombobox() {
-    const context = useContext(ComboboxContext)
-
-    if (!context) {
-        throw new Error(
-            "Combobox components must be used inside Combobox."
-        )
-    }
-
-    return context
-}
-
-// In autocomplete mode, the trigger IS the search input
-function ComboboxTrigger({
-    className,
-    style,
-    // Allow customizing the input element
-    inputProps = {}
-}) {
-    const {
-        open,
-        setOpen,
-        disabled,
-        loading,
-        placeholder,
-        selectedOption,
-        search,
-        setSearch,
-        setValue,
-        clearable,
-        autocomplete
-    } = useCombobox()
-
-    const isDisabled = disabled || loading
-    const inputRef = useRef(null)
-    const wrapperRef = useRef(null)
-
-    // Handle click outside to close dropdown
-    useEffect(() => {
-        if (!open) return
-
-        const handleClickOutside = (event) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-                setOpen(false)
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
-    }, [open, setOpen])
-
-    // Handle keyboard navigation
-    const handleKeyDown = useCallback((event) => {
-        if (!open) return
-
-        switch (event.key) {
-            case "Escape":
-                setOpen(false)
-                inputRef.current?.blur()
-                break
-            case "Tab":
-                setOpen(false)
-                break
-        }
-    }, [open, setOpen])
-
-    // When in autocomplete mode, the trigger is an input
-    if (autocomplete) {
-        const triggerClassName = [
-            styles.triggerWrapper,
-            open && styles.triggerWrapperOpen,
-            isDisabled && styles.triggerWrapperDisabled,
-            className
-        ].filter(Boolean).join(" ")
-
-        // Show selected option label when selected and not actively searching
-        // If user is typing (search has content), show what they're typing
-        // If there's a selection but no search text, show the selected label
-        const displayValue = search ? search : (selectedOption?.label || "")
-
-        // Determine if we should show the "has value" state
-        // This is when there's a selected option but user isn't actively typing
-        const hasSelectedValue = selectedOption && !search
-
-        return (
-            <div
-                ref={wrapperRef}
-                className={triggerClassName}
-                style={style}
-            >
-                <input
-                    ref={inputRef}
-                    type="text"
-                    value={displayValue}
-                    disabled={isDisabled}
-                    placeholder={placeholder}
-                    className={`${styles.triggerInput} ${hasSelectedValue ? styles.triggerInputHasValue : ""}`}
-                    onFocus={() => setOpen(true)}
-                    onChange={(event) => {
-                        const newSearch = event.target.value
-                        setSearch(newSearch)
-                        setOpen(true)
-                        // If user modifies the search after selecting an option, clear the selection
-                        // so they can search for a different option
-                        if (currentValue !== undefined && currentValue !== null) {
-                            setValue(null)
-                        }
-                    }}
-                    onKeyDown={handleKeyDown}
-                    aria-autocomplete="list"
-                    aria-expanded={open}
-                    aria-haspopup="listbox"
-                    {...inputProps}
-                />
-                {clearable && (search || selectedOption) && (
-                    <button
-                        type="button"
-                        className={styles.clear}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            setValue(null)
-                            setSearch("")
-                            setOpen(false)
-                            inputRef.current?.focus()
-                        }}
-                        aria-label="Limpar seleção"
-                    >
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                        >
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                    </button>
-                )}
-                <svg
-                    className={`${styles.triggerIcon} ${open ? styles.triggerIconOpen : ""}`}
+  return (
+    <ComboboxContext.Provider value={contextValue}>
+      <div className={styles.bigWrapper}>
+        {/* Selected chips/tags for multiple mode */}
+        {multiple && selectedOptions.length > 0 && (
+          <div
+            className={styles.selectedChipsAnother}
+            aria-label="Opções selecionadas"
+          >
+            {selectedOptions.map((option) => (
+              <span key={option.value} className={styles.chipAnother}>
+                {option.label}
+                <button
+                  type="button"
+                  className={styles.chipRemove}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    toggleOption(option.value);
+                  }}
+                  aria-label={`Remover ${option.label}`}
+                  tabIndex={-1}
+                >
+                  <svg
+                    width="24"
+                    height="24"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -284,258 +249,493 @@ function ComboboxTrigger({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden="true"
-                >
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </div>
-        )
-    }
-
-    // Legacy mode: button trigger (for backward compatibility)
-    const triggerClassName = [
-        styles.trigger,
-        className
-    ].filter(Boolean).join(" ")
-
-    const displayText = selectedOption?.label || placeholder
-    const isPlaceholder = !selectedOption
-
-    return (
-        <button
-            type="button"
-            disabled={isDisabled}
-            className={triggerClassName}
-            style={style}
-            onClick={() => setOpen(!open)}
-            data-open={open}
-            data-disabled={isDisabled}
-        >
-            <span className={`${styles.triggerText} ${isPlaceholder ? styles.triggerPlaceholder : ""}`}>
-                {displayText}
-            </span>
-            <svg
-                className={styles.triggerIcon}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-            >
-                <polyline points="6 9 12 15 18 9" />
-            </svg>
-        </button>
-    )
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className={className} style={style}>
+          {children}
+        </div>
+      </div>
+    </ComboboxContext.Provider>
+  );
 }
 
-function ComboboxContent({
-    children,
-    className,
-    style
+function useCombobox() {
+  const context = useContext(ComboboxContext);
+
+  if (!context) {
+    throw new Error("Combobox components must be used inside Combobox.");
+  }
+
+  return context;
+}
+
+// In autocomplete mode, the trigger IS the search input
+function ComboboxTrigger({
+  className,
+  style,
+  children,
+  // Allow customizing the input element
+  inputProps = {},
 }) {
-    const { open } = useCombobox()
+  const {
+    open,
+    setOpen,
+    disabled,
+    loading,
+    placeholder,
+    selectedOptions,
+    selectedOption,
+    search,
+    setSearch,
+    setValue,
+    clearAll,
+    clearable,
+    autocomplete,
+    value,
+    multiple,
+  } = useCombobox();
 
-    if (!open) {
-        return null
-    }
+  const isDisabled = disabled || loading;
+  const inputRef = useRef(null);
+  const wrapperRef = useRef(null);
 
-    const contentRef = useRef(null)
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    if (!open) return;
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (contentRef.current && !contentRef.current.contains(event.target)) {
-                // Content handles its own click outside via wrapper
-            }
-        }
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
 
-        document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
-    }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open, setOpen]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (!open) return;
+
+      switch (event.key) {
+        case "Escape":
+          setOpen(false);
+          inputRef.current?.blur();
+          break;
+        case "Tab":
+          setOpen(false);
+          break;
+      }
+    },
+    [open, setOpen],
+  );
+
+  // When in autocomplete mode
+  if (autocomplete) {
+    const triggerClassName = [
+      styles.triggerWrapper,
+      open && styles.triggerWrapperOpen,
+      isDisabled && styles.triggerWrapperDisabled,
+      className,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    // Single select mode with selection: show selected value in input (readonly)
+    const isSingleModeWithSelection = !multiple && selectedOption;
+
+    // Determine input value and behavior
+    const isInputReadOnly = isSingleModeWithSelection && !search;
+    const inputValue = isInputReadOnly ? selectedOption.label : (search ? search : "");
+    const inputPlaceholder = isInputReadOnly ? "" : placeholder;
 
     return (
-        <div
-            ref={contentRef}
-            className={`${styles.content} ${className || ""}`}
-            style={style}
-            role="listbox"
+      <div ref={wrapperRef} className={triggerClassName} style={style}>
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          disabled={isDisabled}
+          readOnly={isInputReadOnly}
+          placeholder={inputPlaceholder}
+          className={`${styles.triggerInput} ${
+            isInputReadOnly ? styles.triggerInputReadOnly : ""
+          } ${multiple ? styles.triggerInputMultiple : ""}`}
+          onFocus={() => {
+            if (isInputReadOnly) {
+              // Don't open on focus when readonly - user clicks to clear
+              return;
+            }
+            setOpen(true);
+          }}
+          onClick={(e) => {
+            if (isInputReadOnly) {
+              // Clicking readonly input opens dropdown for new search
+              e.target.readOnly = false;
+              setSearch("");
+              setOpen(true);
+            }
+          }}
+          onChange={(event) => {
+            // Prevent typing when readonly
+            if (isInputReadOnly) return;
+            const newSearch = event.target.value;
+            setSearch(newSearch);
+            setOpen(true);
+            // If user clears the search completely after selecting an option, deselect it
+            if (
+              newSearch.trim() === "" &&
+              value !== undefined &&
+              value !== null &&
+              !multiple
+            ) {
+              setValue(null);
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          aria-autocomplete="list"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-multiselectable={multiple}
+          {...inputProps}
+        />
+        {clearable && isSingleModeWithSelection && !search && (
+          <button
+            type="button"
+            className={styles.clear}
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAll();
+              setOpen(true);
+              // Focus input after clear so user can type new search
+              setTimeout(() => inputRef.current?.focus(), 0);
+            }}
+            aria-label="Limpar seleção"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
+        {clearable && (search && !multiple ) && (
+          <button
+            type="button"
+            className={styles.clear}
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAll();
+              setOpen(false);
+              inputRef.current?.focus();
+            }}
+            aria-label={
+              multiple ? "Limpar todas as seleções" : "Limpar seleção"
+            }
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
+        <svg
+          className={`${styles.triggerIcon} ${
+            open ? styles.triggerIconOpen : ""
+          }`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
         >
-            {children}
-        </div>
-    )
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+        {open && children && children}
+      </div>
+    );
+  }
+
+  // Legacy mode: button trigger (for backward compatibility)
+  const triggerClassName = [styles.trigger, className]
+    .filter(Boolean)
+    .join(" ");
+
+  const displayText = multiple
+    ? selectedOptions.length > 0
+      ? `${selectedOptions.length} selecionado${
+          selectedOptions.length > 1 ? "s" : ""
+        }`
+      : placeholder
+    : selectedOption?.label || placeholder;
+  const isPlaceholder = multiple
+    ? selectedOptions.length === 0
+    : !selectedOption;
+
+  // Wrap button and dropdown in a relative positioned container
+  const wrapperClassName = [
+    styles.triggerWrapper,
+    open && styles.triggerWrapperOpen,
+    isDisabled && styles.triggerWrapperDisabled,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div ref={wrapperRef} className={wrapperClassName} style={style}>
+      <button
+        type="button"
+        disabled={isDisabled}
+        className={triggerClassName}
+        onClick={() => setOpen(!open)}
+        data-open={open}
+        data-disabled={isDisabled}
+      >
+        <span
+          className={`${styles.triggerText} ${
+            isPlaceholder ? styles.triggerPlaceholder : ""
+          }`}
+        >
+          {displayText}
+        </span>
+        <svg
+          className={styles.triggerIcon}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && children && children}
+    </div>
+  );
+}
+
+function ComboboxContent({ children, className, style }) {
+  const { multiple } = useCombobox();
+  // When used as child of ComboboxTrigger, the trigger handles open state and positioning
+  // This component now just provides the content styling
+  return (
+    <div
+      className={`${styles.content} ${className || ""}`}
+      style={style}
+      role="listbox"
+      aria-multiselectable={multiple}
+    >
+      {children}
+    </div>
+  );
 }
 
 // Standalone search input (for legacy mode where search is inside content)
-function ComboboxSearch({
-    className,
-    style,
-    placeholder
-}) {
-    const {
-        search,
-        setSearch,
-        setOpen,
-        disabled
-    } = useCombobox()
+function ComboboxSearch({ className, style, placeholder }) {
+  const { search, setSearch, setOpen, disabled, value, setValue, multiple } =
+    useCombobox();
 
-    return (
-        <input
-            type="text"
-            value={search}
-            disabled={disabled}
-            placeholder={placeholder}
-            className={`${styles.search} ${className || ""}`}
-            style={style}
-            onFocus={() => setOpen(true)}
-            onChange={(event) => {
-                setSearch(event.target.value)
-                setOpen(true)
-            }}
-            aria-label="Buscar opções"
-            aria-autocomplete="list"
-        />
-    )
+  return (
+    <input
+      type="text"
+      value={search}
+      disabled={disabled}
+      placeholder={placeholder}
+      className={`${styles.search} ${className || ""}`}
+      style={style}
+      onFocus={() => setOpen(true)}
+      onChange={(event) => {
+        const newSearch = event.target.value;
+        setSearch(newSearch);
+        setOpen(true);
+        // If user clears the search completely after selecting an option, deselect it
+        if (
+          newSearch.trim() === "" &&
+          value !== undefined &&
+          value !== null &&
+          !multiple
+        ) {
+          setValue(null);
+        }
+      }}
+      aria-label="Buscar opções"
+      aria-autocomplete="list"
+    />
+  );
 }
 
-function ComboboxList({
-    children,
-    className,
-    style
-}) {
-    const { filteredOptions, value, search } = useCombobox()
+function ComboboxList({ children, className, style }) {
+  const { filteredOptions, search, isOptionSelected } = useCombobox();
 
-    // Check if we should show empty state
-    // Show when there are no filtered options AND user has typed something
-    const showEmptyState = filteredOptions.length === 0 && search.trim() !== ""
+  // Check if we should show empty state
+  // Show when there are no filtered options AND user has typed something
+  const showEmptyState = filteredOptions.length === 0 && search.trim() !== "";
 
-    return (
-        <div
-            className={`${styles.list} ${className || ""}`}
-            style={style}
-            role="presentation"
-        >
-            {children ??
-                (showEmptyState ? (
-                    <div className={styles.emptyState}>
-                        Nenhum resultado encontrado para "{search}"
-                    </div>
-                ) : (
-                    filteredOptions.map((option) => (
-                        <ComboboxOption
-                            key={option.value}
-                            value={option.value}
-                            label={option.label}
-                            isSelected={option.value === value}
-                        >
-                            {option.label}
-                        </ComboboxOption>
-                    ))
-                ))}
-        </div>
-    )
+  return (
+    <div
+      className={`${styles.list} ${className || ""}`}
+      style={style}
+      role="presentation"
+    >
+      {children ??
+        (showEmptyState ? (
+          <div className={styles.emptyState}>
+            Nenhum resultado encontrado para "{search}"
+          </div>
+        ) : (
+          filteredOptions.map((option) => (
+            <ComboboxOption
+              key={option.value}
+              value={option.value}
+              label={option.label}
+              isSelected={isOptionSelected(option.value)}
+            >
+              {option.label}
+            </ComboboxOption>
+          ))
+        ))}
+    </div>
+  );
 }
 
 function ComboboxOption({
-    value,
-    children,
-    className,
-    style,
-    isSelected = false
+  value,
+  children,
+  className,
+  style,
+  isSelected = false,
 }) {
-    const {
-        setValue,
-        setSearch,
-        setOpen,
-        disabled
-    } = useCombobox()
+  const { toggleOption, setSearch, setOpen, disabled, multiple } =
+    useCombobox();
 
-    const optionDisabled = disabled
+  const optionDisabled = disabled;
 
-    const optionClassName = [
-        styles.option,
-        isSelected && styles.optionSelected,
-        className
-    ].filter(Boolean).join(" ")
+  const optionClassName = [
+    styles.option,
+    isSelected && styles.optionSelected,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-    // Use onMouseDown instead of onClick to ensure selection happens
-    // before the click-outside handler closes the dropdown
-    const handleMouseDown = (event) => {
-        if (!optionDisabled) {
-            // Prevent the input from losing focus and stop the click-outside handler
-            event.preventDefault()
-            setValue(value)
-            setSearch("")
-            setOpen(false)
-        }
+  // Use onMouseDown instead of onClick to ensure selection happens
+  // before the click-outside handler closes the dropdown
+  const handleMouseDown = (event) => {
+    if (!optionDisabled) {
+      // Prevent the input from losing focus and stop the click-outside handler
+      event.preventDefault();
+      toggleOption(value);
+      if (!multiple) {
+        setSearch("");
+        setOpen(false);
+      }
     }
+  };
 
-    return (
-        <button
-            type="button"
-            role="option"
-            aria-selected={isSelected}
-            disabled={optionDisabled}
-            className={optionClassName}
-            style={style}
-            onMouseDown={handleMouseDown}
-            data-highlighted={false}
-            data-value={value}
+  return (
+    <button
+      type="button"
+      role="option"
+      aria-selected={isSelected}
+      disabled={optionDisabled}
+      className={optionClassName}
+      style={style}
+      onMouseDown={handleMouseDown}
+      data-highlighted={false}
+      data-value={value}
+    >
+      {children}
+      {multiple && isSelected && (
+        <svg
+          className={styles.checkIcon}
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
         >
-            {children}
-        </button>
-    )
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
-function ComboboxClear({
-    children = "Limpar",
-    className,
-    style
-}) {
-    const {
-        clearable,
-        setValue,
-        setSearch
-    } = useCombobox()
+function ComboboxClear({ children = "Limpar", className, style }) {
+  const { clearable, clearAll } = useCombobox();
 
-    if (!clearable) {
-        return null
-    }
+  if (!clearable) {
+    return null;
+  }
 
-    return (
-        <button
-            type="button"
-            className={`${styles.clear} ${className || ""}`}
-            style={style}
-            onClick={() => {
-                setValue(null)
-                setSearch("")
-            }}
-        >
-            <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-            >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-            {children}
-        </button>
-    )
+  return (
+    <button
+      type="button"
+      className={`${styles.clear} ${className || ""}`}
+      style={style}
+      onClick={clearAll}
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+      {children}
+    </button>
+  );
 }
 
 export {
-    Combobox,
-    ComboboxTrigger,
-    ComboboxContent,
-    ComboboxSearch,
-    ComboboxList,
-    ComboboxOption,
-    ComboboxClear
-}
+  Combobox,
+  ComboboxTrigger,
+  ComboboxContent,
+  ComboboxSearch,
+  ComboboxList,
+  ComboboxOption,
+  ComboboxClear,
+};

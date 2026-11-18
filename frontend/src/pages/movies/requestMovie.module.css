@@ -1,0 +1,550 @@
+/* ========================================
+   RequestMovie - Two-step Movie Creation Form
+   ======================================== */
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+}
+
+/* ========================================
+   Stepper / Progress Indicator
+   ======================================== */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #ffffff;
+  text-align: left;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border: 2px solid #8eaa91;
+  border-radius: 50%;
+  color: #8eaa91;
+  font-size: 20px;
+  font-weight: 700;
+  transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stepTitle {
+  margin: 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepDescription {
+  margin: 0;
+  color: #8eaa91;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active step */
+.active {
+  background-color: #24D44A;
+}
+
+.active .stepNumber {
+  border-color: #075e23;
+  color: #075e23;
+}
+
+.active .stepTitle,
+.active .stepDescription {
+  color: #075e23;
+}
+
+/* Completed step */
+.completed {
+  background-color: rgba(36, 212, 74, 0.15);
+}
+
+.completed .stepNumber {
+  border-color: #24D44A;
+  color: #24D44A;
+  background-color: rgba(36, 212, 74, 0.1);
+}
+
+.completed .stepTitle,
+.completed .stepDescription {
+  color: #24D44A;
+}
+
+.completed .stepNumber svg {
+  color: #24D44A;
+}
+
+/* ========================================
+   Form Wrapper
+   ======================================== */
+.formWrapper {
+  animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Form Section
+   ======================================== */
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionTitle {
+  margin: 0 0 1rem;
+  color: #24D44A;
+  font-size: 20px;
+  font-weight: 700;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #526F54;
+}
+
+/* ========================================
+   Field Styles (using Field component)
+   ======================================== */
+.field {
+  width: 100%;
+}
+
+.fieldGroup {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.fieldGroup > .field {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Input and Textarea base styles */
+.input {
+  height: 48px;
+  border: 2px solid #526F54;
+  border-radius: 8px;
+  background-color: #111F10;
+  padding: 0 1rem;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: #718A73;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.input:disabled,
+.input[data-disabled="true"] {
+  border-color: #3A4D3B;
+  background-color: #1A2A1D;
+  color: #A6B8A8;
+  cursor: not-allowed;
+}
+
+.input[data-invalid="true"] {
+  border-color: #FF8080;
+}
+
+.input[data-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(255, 128, 128, 0.3);
+}
+
+/* Textarea */
+.textarea {
+  min-height: 120px;
+  border: 2px solid #526F54;
+  border-radius: 8px;
+  background-color: #111F10;
+  padding: 1rem;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea::placeholder {
+  color: #718A73;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.textarea:disabled {
+  border-color: #3A4D3B;
+  background-color: #1A2A1D;
+  color: #A6B8A8;
+  cursor: not-allowed;
+}
+
+.textarea[data-invalid="true"] {
+  border-color: #FF8080;
+}
+
+.textarea[data-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(255, 128, 128, 0.3);
+}
+
+/* ========================================
+   Field Label, Hint, Error (via Field components)
+   ======================================== */
+.field label {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+  display: block;
+}
+
+.field label span {
+  color: #FF8080;
+}
+
+.field[data-disabled="true"] label {
+  color: #8A9A8D;
+}
+
+.field p.hint {
+  font-size: 13px;
+  color: #A6A6A6;
+  margin-top: 0.375rem;
+  margin-bottom: 0;
+}
+
+.field p.error {
+  font-size: 13px;
+  color: #FF8080;
+  margin-top: 0.375rem;
+  margin-bottom: 0;
+}
+
+/* ========================================
+   Combobox Integration Styles
+   ======================================== */
+.combobox {
+  width: 100%;
+}
+
+/* Override combobox trigger to match form input height */
+.combobox :global(.triggerWrapper) {
+  height: 48px !important;
+  border: 2px solid #526F54 !important;
+  background-color: #111F10 !important;
+  border-radius: 8px !important;
+}
+
+.combobox :global(.triggerWrapper):hover:not(.triggerWrapperDisabled) {
+  border-color: #24D44A !important;
+}
+
+.combobox :global(.triggerWrapperOpen) {
+  border-color: #24D44A !important;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3) !important;
+}
+
+.combobox :global(.triggerInput) {
+  color: white !important;
+  font-size: 16px !important;
+}
+
+.combobox :global(.triggerInput)::placeholder {
+  color: #718A73 !important;
+}
+
+.combobox :global(.triggerInputReadOnly) {
+  color: #24D44A !important;
+  font-weight: 500 !important;
+}
+
+.combobox :global(.chipAnother) {
+  height: 48px !important;
+  background-color: #2C3F2A !important;
+  border: 2px solid #526F54 !important;
+  border-radius: 8px !important;
+  color: #B9D2BA !important;
+}
+
+.combobox :global(.chipRemove) {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.combobox :global(.bigWrapper) {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Combobox dropdown content */
+.combobox :global(.content) {
+  border: 2px solid #526F54 !important;
+  border-radius: 8px !important;
+  background-color: #111F10 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  margin-top: 4px !important;
+}
+
+.combobox :global(.option) {
+  color: white !important;
+  font-size: 15px !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.combobox :global(.option:hover),
+.combobox :global(.option[data-highlighted="true"]) {
+  background-color: #1A2A1D !important;
+  color: #24D44A !important;
+}
+
+.combobox :global(.optionSelected) {
+  color: #24D44A !important;
+  font-weight: 500 !important;
+}
+
+.combobox :global(.checkIcon) {
+  color: #24D44A !important;
+}
+
+.combobox :global(.emptyState) {
+  color: #718A73 !important;
+}
+
+/* ========================================
+   Form Actions / Navigation Buttons
+   ======================================== */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.backButton {
+  min-width: 120px;
+}
+
+.nextButton,
+.submitButton {
+  min-width: 160px;
+  flex: 1;
+}
+
+/* ========================================
+   Status Messages
+   ======================================== */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background-color: rgba(255, 128, 128, 0.15);
+  border: 1px solid #FF8080;
+  border-radius: 8px;
+  color: #FF8080;
+  font-size: 14px;
+  animation: slideIn 200ms ease;
+}
+
+.successMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background-color: rgba(36, 212, 74, 0.15);
+  border: 1px solid #24D44A;
+  border-radius: 8px;
+  color: #24D44A;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideIn 200ms ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Loading State for Buttons
+   ======================================== */
+.button:disabled,
+.button[aria-disabled="true"],
+.button[data-loading="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.button[aria-busy="true"] {
+  position: relative;
+  color: transparent !important;
+}
+
+.button[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .stepper {
+    gap: 12px;
+  }
+
+  .step {
+    padding: 12px 16px;
+  }
+
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .stepTitle {
+    font-size: 14px;
+  }
+
+  .stepDescription {
+    font-size: 12px;
+  }
+
+  .fieldGroup {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .formActions {
+    flex-direction: column-reverse;
+  }
+
+  .formActions button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .backButton,
+  .nextButton,
+  .submitButton {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+}
+
+/* ========================================
+   Focus Visible Styles for Accessibility
+   ======================================== */
+*:focus-visible {
+  outline: none;
+}
+
+.input:focus-visible,
+.textarea:focus-visible,
+.combobox :global(.triggerWrapper):focus-visible {
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.4);
+}
+
+.backButton:focus-visible,
+.nextButton:focus-visible,
+.submitButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.4);
+}
