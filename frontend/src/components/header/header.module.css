@@ -23,6 +23,7 @@ h1 {
 .navbar > ul {
     display: flex;
     gap: 2rem;
+    align-items: center;
 }
 
 .navbar ul > li > a {
@@ -32,4 +33,25 @@ h1 {
     color: white;
     text-decoration: none;
     gap: 12px;
+}
+
+.profileLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.profileImage {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profileName {
+    font-size: 14px;
+    font-weight: 500;
 }

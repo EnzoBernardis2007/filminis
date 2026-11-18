@@ -1,9 +1,12 @@
+import { useEffect, useState } from 'react'
 import styles from './header.module.css'
 import commonStyles from '../../app.module.css'
 import { Link } from 'react-router-dom'
 import SvgLogo from '../svg-as-code/SvgLogo.jsx'
 import SvgHome from '../svg-as-code/SvgHome.jsx'
 import SvgFilm from '../svg-as-code/SvgFilm.jsx'
+import { useAuth } from '../../contexts/useAuth'
+import defaultProfilePic from '../../assets/defaultpfp.png'
 
 function HeaderLink({ icon, title, path }) {
     return (
@@ -16,7 +19,49 @@ function HeaderLink({ icon, title, path }) {
     )
 }
 
+function ProfileLink({ user }) {
+    const displayName = user?.apelido || user?.nome || 'Usuário'
+    const profileImage = user?.foto && user?.foto !== 'imagem' ? user.foto : defaultProfilePic
+
+    return (
+        <Link to="/profile" className={styles.profileLink}>
+            <img
+                src={profileImage}
+                alt={displayName}
+                className={styles.profileImage}
+                onError={(e) => {
+                    e.currentTarget.onerror = null
+                    e.currentTarget.src = defaultProfilePic
+                }}
+            />
+            <span className={styles.profileName}>{displayName}</span>
+        </Link>
+    )
+}
+
 function Header() {
+    const { api, isAuthenticated } = useAuth()
+    const [user, setUser] = useState(null)
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setUser(null)
+            return
+        }
+
+        async function fetchUser() {
+            try {
+                const userData = await api.me()
+                setUser(userData)
+            } catch (err) {
+                console.error('Failed to fetch user:', err)
+                setUser(null)
+            }
+        }
+
+        fetchUser()
+    }, [api, isAuthenticated])
+
     const navLinks = [
         { icon: <SvgHome />, title: 'Início', path: '/' },
         { icon: <SvgFilm />, title: 'Filmes', path: '/movies' },
@@ -32,13 +77,18 @@ function Header() {
                 <nav className={styles.navbar}>
                     <ul className={commonStyles.flex}>
                         {navLinks.map((link, index) => (
-                            <HeaderLink 
+                            <HeaderLink
                                 key={index}
                                 icon={link.icon}
                                 title={link.title}
                                 path={link.path}
                             />
                         ))}
+                        {isAuthenticated && (
+                            <li>
+                                <ProfileLink user={user} />
+                            </li>
+                        )}
                     </ul>
                 </nav>
             </div>
