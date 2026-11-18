@@ -264,5 +264,40 @@ export function createApi(getAuth) {
 
             return data
         },
+
+        /**
+         * Creates a new movie (POST /cadastrani)
+         * Status is automatically set based on user role:
+         * - Admin users: "aprovado"
+         * - Regular users: "pendente" (requires admin approval)
+         * @param {object} movieData - Movie data to create
+         * @param {string} movieData.titulo - Movie title
+         * @param {number} movieData.ano - Release year
+         * @param {string} movieData.sinopse - Movie synopsis
+         * @param {string|number} movieData.duracao - Duration (e.g., "120min" or 120)
+         * @param {string} movieData.imagem - Poster image URL
+         * @param {number|string} movieData.orcamento - Budget (number or formatted string like "R$ 1.000.000,00")
+         * @param {number[]} [movieData.categoria_id] - Array of category IDs
+         * @param {number[]} [movieData.diretor_id] - Array of director IDs
+         * @param {number[]} [movieData.atores_ids] - Array of actor IDs
+         * @param {number[]} [movieData.produtora_id] - Array of production company IDs
+         * @param {number[]} [movieData.linguagem_id] - Array of language IDs
+         * @param {number[]} [movieData.pais_origem_id] - Array of country IDs
+         * @returns {Promise<object>} Created movie info with id and status
+         */
+        async createMovie(movieData) {
+            const response = await authenticatedFetch('/cadastrani', {
+                method: 'POST',
+                body: JSON.stringify(movieData),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao criar filme')
+            }
+
+            return data
+        },
     }
 }

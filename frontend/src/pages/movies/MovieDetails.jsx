@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import styles from "./movieDetails.module.css";
+import posterPlaceholder from "../../assets/poster.png";
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +14,10 @@ function durationToMinutes(durationStr) {
   if (!durationStr) return 0;
   const [hours, minutes] = durationStr.split(":").map(Number);
   return hours * 60 + minutes;
+}
+
+function handleImageError(e) {
+  e.target.src = posterPlaceholder;
 }
 
 /**
@@ -105,7 +110,7 @@ export default function MovieDetails() {
       <div className={styles.grid}>
         <div className={styles.sidebar}>
           <div className={styles.poster}>
-            <img src={movie.poster} alt={movie.titulo} />
+            <img src={movie.poster} alt={movie.titulo} onError={handleImageError} />
           </div>
         </div>
         <div className={styles.columnTwo}>

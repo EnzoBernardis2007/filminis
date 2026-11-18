@@ -1,0 +1,297 @@
+/* Legacy button trigger mode */
+.trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    width: 100%;
+    height: 48px;
+
+    border: 2px solid #526F54;
+    border-radius: 8px;
+    background-color: #111F10;
+
+    padding: 0 1rem;
+
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.trigger:hover:not(:disabled) {
+    border-color: #24D44A;
+}
+
+.trigger:focus-visible {
+    outline: none;
+    border-color: #24D44A;
+    box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.trigger:disabled,
+.trigger[data-disabled="true"] {
+    border-color: #3A4D3B;
+    background-color: #1A2A1D;
+    color: #A6B8A8;
+    cursor: not-allowed;
+}
+
+.triggerIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: #718A73;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.trigger[data-open="true"] .triggerIcon {
+    transform: rotate(180deg);
+    color: #24D44A;
+}
+
+.trigger:disabled .triggerIcon,
+.trigger[data-disabled="true"] .triggerIcon {
+    color: #6B7D6E;
+}
+
+.triggerText {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.triggerPlaceholder {
+    color: #718A73;
+}
+
+.content {
+    position: absolute;
+    z-index: 50;
+    width: 100%;
+    max-height: 280px;
+    overflow-y: auto;
+    margin-top: 4px;
+
+    border: 2px solid #526F54;
+    border-radius: 8px;
+    background-color: #111F10;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.search {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-bottom: 2px solid #526F54;
+    border-radius: 0;
+    background-color: transparent;
+    padding: 0 1rem;
+
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search::placeholder {
+    color: #718A73;
+}
+
+.search:focus {
+    border-bottom-color: #24D44A;
+}
+
+.search:disabled {
+    color: #A6B8A8;
+    cursor: not-allowed;
+}
+
+.list {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.625rem 1rem;
+
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.option:hover,
+.option[data-highlighted="true"] {
+    background-color: #1A2A1D;
+    color: #24D44A;
+}
+
+.option:focus-visible {
+    outline: none;
+    background-color: #1A2A1D;
+    color: #24D44A;
+}
+
+.option:disabled {
+    color: #718A73;
+    cursor: not-allowed;
+}
+
+.optionSelected {
+    color: #24D44A;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Autocomplete mode styles (default) */
+.triggerWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    width: 100%;
+    height: 48px;
+
+    border: 2px solid #526F54;
+    border-radius: 8px;
+    background-color: #111F10;
+
+    padding: 0 1rem;
+
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.triggerWrapper:hover:not(.triggerWrapperDisabled) {
+    border-color: #24D44A;
+}
+
+.triggerWrapperOpen {
+    border-color: #24D44A;
+    box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.triggerWrapperDisabled {
+    border-color: #3A4D3B;
+    background-color: #1A2A1D;
+    cursor: not-allowed;
+}
+
+.triggerInput {
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+
+    outline: none;
+}
+
+.triggerInput::placeholder {
+    color: #718A73;
+}
+
+.triggerInput:disabled {
+    color: #A6B8A8;
+    cursor: not-allowed;
+}
+
+.triggerWrapperDisabled .triggerInput {
+    color: #A6B8A8;
+    cursor: not-allowed;
+}
+
+/* Visual confirmation when a value is selected but user isn't typing */
+.triggerInputHasValue {
+    color: #24D44A;
+}
+
+/* Reuse triggerIcon for autocomplete mode */
+.triggerIconOpen {
+    transform: rotate(180deg);
+    color: #24D44A;
+}
+
+.triggerWrapperDisabled .triggerIcon {
+    color: #6B7D6E;
+}
+
+/* Clear button inside trigger */
+.clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 32px;
+    padding: 0 0.75rem;
+
+    border: 2px solid #526F54;
+    border-radius: 6px;
+    background-color: transparent;
+
+    color: #A6B8A8;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.clear:hover:not(:disabled) {
+    border-color: #FF8080;
+    background-color: rgba(255, 128, 128, 0.1);
+    color: #FF8080;
+}
+
+.clear:focus-visible {
+    outline: none;
+    border-color: #FF8080;
+    box-shadow: 0 0 0 3px rgba(255, 128, 128, 0.3);
+}
+
+.clear:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Empty state for no matching results */
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+
+    color: #718A73;
+    font-size: 15px;
+    font-family: inherit;
+    text-align: center;
+}
