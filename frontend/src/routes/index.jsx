@@ -6,6 +6,7 @@ import MovieDetails from '../pages/movies/MovieDetails';
 import Login from '../pages/login/Login';
 import Profile from '../pages/profile/Profile';
 import RequestMovie from '../pages/movies/RequestMovie'
+import Approval from '../pages/approval/Approval'
 import { ProtectedRoute, PublicRoute } from '../components/ProtectedRoute';
 
 export function AppRoutes() {
@@ -29,6 +30,14 @@ export function AppRoutes() {
             element={
               <ProtectedRoute fallbackPath="/login">
                 <RequestMovie />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='approval'
+            element={
+              <ProtectedRoute fallbackPath="/login">
+                <Approval />
               </ProtectedRoute>
             }
           />

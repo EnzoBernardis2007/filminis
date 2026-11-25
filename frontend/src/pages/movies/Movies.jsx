@@ -1,6 +1,6 @@
 import styles from "./movies.module.css";
 import commonStyles from "../../app.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import posterPlaceholder from "../../assets/poster.png";
@@ -49,11 +49,17 @@ function Card({
 export default function Movies() {
   const { api } = useAuth();
   const navigate = useNavigate();
-  const [moviesList, setMoviesList] = useState([]);
+  const [allMovies, setAllMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isGrid, setIsGrid] = useState(true);
   const [keyword, setKeyword] = useState("");
   const itemsPerPage = isGrid ? 9 : 12;
+
+  // Filter approved movies only (istatus === "aprovado")
+  const approvedMovies = useMemo(() =>
+    allMovies.filter(movie => movie.istatus === "aprovado" || movie.status === "aprovado"),
+    [allMovies]
+  );
 
   const handleMovieClick = (movieId) => {
     navigate(`/movies/${movieId}`);
@@ -63,7 +69,7 @@ export default function Movies() {
     const fetchData = async () => {
       try {
         const data = await api.movies();
-        setMoviesList(Array.isArray(data) ? data : []);
+        setAllMovies(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Erro ao carregar os filmes:", error);
       }
@@ -72,8 +78,7 @@ export default function Movies() {
     fetchData();
   }, [api]);
 
-  // Reset to page 1 when keyword changes (derived state pattern)
-  // Using a key on the component would be better but this is a minimal fix
+  // Reset to page 1 when keyword changes
   const [keywordForPageReset, setKeywordForPageReset] = useState("");
 
   if (keyword !== keywordForPageReset) {
@@ -81,11 +86,9 @@ export default function Movies() {
     setKeywordForPageReset(keyword);
   }
 
-  const searchedMovieList = Array.isArray(moviesList)
-    ? moviesList.filter((el) =>
-        el.titulo?.trim().toLowerCase().includes(keyword.trim().toLowerCase())
-      )
-    : [];
+  const searchedMovieList = approvedMovies.filter((el) =>
+    el.titulo?.trim().toLowerCase().includes(keyword.trim().toLowerCase())
+  );
 
   const totalPages = Math.ceil(searchedMovieList.length / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -122,12 +125,12 @@ export default function Movies() {
           <div className={styles.searchbar}>
             <label htmlFor="search-input">Pesquisar</label>
             <div>
-              <input 
+              <input
                 id="search-input"
-                onChange={handleSearch} 
-                type="search" 
+                onChange={handleSearch}
+                type="search"
                 value={keyword}
-                placeholder="Ex: Matrix" 
+                placeholder="Ex: Matrix"
               />
               <button type="button">Pesquisar</button>
             </div>
@@ -151,7 +154,7 @@ export default function Movies() {
         </div>
 
         <h2 className={commonStyles.sectionTitle}>Catálogo de Filmes</h2>
-        
+
         {
           isGrid ? (
             <div className={styles.gridView}>
@@ -192,7 +195,7 @@ export default function Movies() {
             </table>
           )
         }
-        
+
 
         {totalPages > 1 && (
           <nav className={styles.paginationContainer} aria-label="Navegação de página">

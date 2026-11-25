@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, useEffect } from "react"
 import { AuthContext } from "./AuthContext"
 import { createApi } from "../services/api"
+import { decodeJwt } from "../services/api"
 
 const TOKEN_STORAGE_KEY = 'auth_tokens'
 
@@ -16,6 +17,13 @@ function getInitialTokens() {
         console.warn('Failed to parse stored auth tokens:', e)
     }
     return { accessToken: null, refreshToken: null }
+}
+
+// Extract user role from access token
+function getUserRole(accessToken) {
+    if (!accessToken) return null
+    const payload = decodeJwt(accessToken)
+    return payload?.role || null
 }
 
 // Persist tokens to localStorage
@@ -36,6 +44,10 @@ export function AuthProvider({ children }) {
 
     const [accessToken, setAccessToken] = useState(initialAccessToken)
     const [refreshToken, setRefreshToken] = useState(initialRefreshToken)
+
+    // Derive user role from access token
+    const userRole = useMemo(() => getUserRole(accessToken), [accessToken])
+    const isAdmin = userRole === 'admin'
 
     // Persist tokens to localStorage whenever they change
     useEffect(() => {
@@ -81,6 +93,8 @@ export function AuthProvider({ children }) {
         logout,
         api,
         getAuth,
+        userRole,
+        isAdmin,
     }), [
         accessToken,
         refreshToken,
@@ -89,6 +103,8 @@ export function AuthProvider({ children }) {
         logout,
         api,
         getAuth,
+        userRole,
+        isAdmin,
     ])
 
     return (

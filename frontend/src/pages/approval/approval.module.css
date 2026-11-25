@@ -1,0 +1,473 @@
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    min-height: calc(100vh - 200px);
+}
+
+.pageHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-self: flex-start;
+}
+
+.pageTitle {
+    font-size: 22px;
+    font-weight: 600;
+    color: #F5F5F5;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.pageSubtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: #98AE99;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.mainLayout {
+    display: grid;
+    grid-template-columns: 25% 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Left Column - Pending Approvals */
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.pendingCard {
+    background-color: #122112;
+    border: 2px solid #254B2D;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 600px;
+}
+
+.pendingHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #1C321E;
+    border-bottom: 2px solid #254B2D;
+    height: 52px;
+    box-sizing: border-box;
+}
+
+.pendingTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #F5F5F5;
+    margin: 0;
+}
+
+.pendingCounter {
+    background-color: #284C30;
+    color: #F5F5F5;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    min-width: 32px;
+    text-align: center;
+}
+
+.pendingList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.listItem {
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+    border: 2px solid transparent;
+}
+
+.listItem:hover:not(.selected) {
+    background-color: rgba(40, 76, 48, 0.5);
+}
+
+.listItem:focus-visible {
+    outline: none;
+    border-color: #24D44A;
+    background-color: rgba(36, 212, 74, 0.1);
+}
+
+.listItem.selected {
+    background-color: #284C30;
+    border-color: #2B5032;
+}
+
+.movieTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #F5F5F5;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.movieYear {
+    font-style: italic;
+    font-weight: 400;
+    color: #F5F5F5;
+}
+
+.movieDirector {
+    font-size: 14px;
+    font-weight: 400;
+    color: #98AE99;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.movieDirector span {
+    font-style: italic;
+    color: #98AE99;
+}
+
+.emptyState {
+    color: #98AE99;
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    padding: 24px;
+}
+
+/* Right Column - Detail Panel */
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.detailCard {
+    background-color: #122112;
+    border: 2px solid #254B2D;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.emptyCard {
+    background-color: #122112;
+    border: 2px solid #254B2D;
+    border-radius: 12px;
+    padding: 48px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emptyMessage {
+    color: #98AE99;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Basic Information Section */
+.basicInfo {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+    padding: 24px;
+    border-bottom: 2px solid #254B2D;
+}
+
+.posterSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.poster {
+    width: 300px;
+    height: 420px;
+    object-fit: cover;
+    border: 2px solid #254B2D;
+    background-color: #1a1a1a;
+    flex-shrink: 0;
+}
+
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.sectionTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #F5F5F5;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sectionDivider {
+    width: 100%;
+    height: 2px;
+    background-color: #254B2D;
+}
+
+.metadataRow {
+    display: flex;
+    gap: 16px;
+}
+
+.metadataField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.metadataField:first-child {
+    flex: 1;
+}
+
+.metadataField:nth-child(2) {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.metadataField:nth-child(3) {
+    width: 160px;
+    flex-shrink: 0;
+}
+
+.fieldLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: #F5F5F5;
+    margin: 0;
+}
+
+.fieldValue {
+    font-size: 14px;
+    font-weight: 400;
+    color: #98AE99;
+    background-color: #102011;
+    border: 2px solid #254B2D;
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.synopsisField {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.synopsisValue {
+    font-size: 14px;
+    font-weight: 400;
+    color: #98AE99;
+    background-color: #0F1C0F;
+    border: 2px solid #254B2D;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 204px;
+    max-height: 204px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    line-height: 1.6;
+    box-sizing: border-box;
+}
+
+/* Additional Information Section */
+.additionalInfo {
+    padding: 24px;
+    border-bottom: 2px solid #254B2D;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.categoriesGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.categoryRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.categoryLabel {
+    font-size: 16px;
+    font-weight: 600;
+    color: #F5F5F5;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: transparent;
+    border: 2px solid #254B2D;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #F5F5F5;
+    white-space: nowrap;
+}
+
+.emptyTag {
+    font-size: 14px;
+    font-weight: 400;
+    color: #98AE99;
+    font-style: italic;
+}
+
+/* Actions Footer */
+.actionsFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background-color: #1D2F1E;
+    border-top: 2px solid #254B2D;
+    border-radius: 0 0 12px 12px;
+    gap: 16px;
+}
+
+.rejectButton,
+.approveButton {
+    height: 64px;
+    padding: 0 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    min-width: 160px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rejectButton {
+    background-color: #F52D2D;
+    border-color: #F52D2D;
+    color: #080808;
+}
+
+.rejectButton:hover:not(:disabled) {
+    background-color: #ff5252;
+    border-color: #ff5252;
+}
+
+.approveButton {
+    background-color: #20D34A;
+    border-color: #20D34A;
+    color: #080808;
+}
+
+.approveButton:hover:not(:disabled) {
+    background-color: #3ae35e;
+    border-color: #3ae35e;
+}
+
+.rejectButton:disabled,
+.approveButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading & Error States */
+.loadingContainer,
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+    color: #98AE99;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #254B2D;
+    border-top-color: #24D44A;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments for smaller screens (but not full mobile) */
+@media (max-width: 1400px) {
+    .mainLayout {
+        grid-template-columns: 300px 1fr;
+    }
+}
+
+@media (max-width: 1200px) {
+    .pageContainer {
+        max-width: 100%;
+        padding: 16px;
+    }
+
+    .basicInfo {
+        grid-template-columns: 260px 1fr;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .poster {
+        width: 260px;
+        height: 364px;
+    }
+
+    .metadataField:nth-child(2) {
+        width: 100px;
+    }
+
+    .metadataField:nth-child(3) {
+        width: 140px;
+    }
+}

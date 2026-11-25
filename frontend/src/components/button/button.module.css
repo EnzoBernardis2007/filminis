@@ -68,3 +68,14 @@
 .fullWidth {
     width: 100%;
 }
+
+.danger {
+    color: #fff;
+    background-color: #dc2626;
+    border-color: #b91c1c;
+}
+
+.danger:hover:not(:disabled) {
+    background-color: #ef4444;
+    border-color: #dc2626;
+}

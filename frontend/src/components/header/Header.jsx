@@ -8,6 +8,8 @@ import SvgFilm from "../svg-as-code/SvgFilm.jsx";
 import SvgLogin from "../svg-as-code/SvgLogin.jsx";
 import { useAuth } from "../../contexts/useAuth";
 import defaultProfilePic from "../../assets/defaultpfp.png";
+import SvgPlusCircle from '../svg-as-code/SvgPlusCircle';
+import SvgApproval from '../svg-as-code/SvgApproval';
 
 function HeaderLink({ icon, title, path }) {
   return (
@@ -42,7 +44,7 @@ function ProfileLink({ user }) {
 }
 
 function Header() {
-  const { api, isAuthenticated } = useAuth();
+  const { api, isAuthenticated, isAdmin } = useAuth();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -67,6 +69,11 @@ function Header() {
   const navLinks = [
     { icon: <SvgHome />, title: "Início", path: "/" },
     { icon: <SvgFilm />, title: "Filmes", path: "/movies" },
+    { icon: <SvgPlusCircle />, title: "Postar", path: "/request" },
+  ];
+
+  const adminLinks = [
+    { icon: <SvgApproval />, title: "Aprovações", path: "/approval" },
   ];
 
   return (
@@ -81,6 +88,14 @@ function Header() {
         <nav className={styles.navbar}>
           <ul className={commonStyles.flex}>
             {navLinks.map((link, index) => (
+              <HeaderLink
+                key={index}
+                icon={link.icon}
+                title={link.title}
+                path={link.path}
+              />
+            ))}
+            {isAdmin && adminLinks.map((link, index) => (
               <HeaderLink
                 key={index}
                 icon={link.icon}

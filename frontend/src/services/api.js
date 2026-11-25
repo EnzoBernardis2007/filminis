@@ -5,7 +5,7 @@ const url = 'http://localhost:8000'
  * @param {string} token - JWT token
  * @returns {object|null} Decoded payload or null if invalid
  */
-function decodeJwt(token) {
+export function decodeJwt(token) {
     if (!token || typeof token !== 'string') return null
 
     try {
@@ -298,6 +298,44 @@ export function createApi(getAuth) {
             }
 
             return data
+        },
+
+        /**
+         * Approves a pending movie (PUT /aprovafilme?id=...)
+         * Requires admin authentication
+         * @param {string|number} id - Movie ID
+         * @returns {Promise<object>} Success message
+         */
+        async approveMovie(id) {
+            const response = await authenticatedFetch(`/aprovafilme?id=${id}`, {
+                method: 'PUT',
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao aprovar filme');
+            }
+
+            return data;
+        },
+
+        /**
+         * Rejects a pending movie (DELETE /filme?id=...)
+         * Requires admin authentication
+         * @param {string|number} id - Movie ID
+         * @returns {Promise<object>} Success message
+         */
+        async rejectMovie(id) {
+            const response = await authenticatedFetch(`/filme?id=${id}`, {
+                method: 'DELETE',
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao rejeitar filme');
+            }
+
+            return data;
         },
 
         // ========== LISTAGEM DE DADOS AUXILIARES (Endpoints públicos) ==========
