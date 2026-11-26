@@ -22,6 +22,7 @@ function handleImageError(e) {
 /**
  * Custom hook for approval page logic
  * Fetches all movies from /listagem and filters for pending status client-side
+ * Fetches detailed movie info from /filme?id=... when a movie is selected
  */
 export function useApproval() {
   const { api } = useAuth();
@@ -32,6 +33,7 @@ export function useApproval() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [fetchingDetails, setFetchingDetails] = useState(false);
 
   // Filter pending movies from all movies (istatus === "pendente")
   const pendingMovies = useMemo(() =>
@@ -61,6 +63,27 @@ export function useApproval() {
 
     fetchMovies();
   }, [api]);
+
+  // Fetch detailed movie information when a movie is selected
+  useEffect(() => {
+    if (!selectedMovie) return;
+
+    const fetchMovieDetails = async () => {
+      try {
+        setFetchingDetails(true);
+        const detailedMovie = await api.movieById(selectedMovie.id);
+        // Merge detailed info with the selected movie (detailed info takes precedence)
+        setSelectedMovie(prev => prev ? { ...prev, ...detailedMovie } : null);
+      } catch (err) {
+        console.error("Erro ao buscar detalhes do filme:", err);
+        // Keep the basic movie info even if detailed fetch fails
+      } finally {
+        setFetchingDetails(false);
+      }
+    };
+
+    fetchMovieDetails();
+  }, [selectedMovie?.id, api]);
 
   const handleMovieSelect = useCallback((movie) => {
     setSelectedMovie(movie);
@@ -121,6 +144,7 @@ export function useApproval() {
     pendingMovies,
     selectedMovie,
     loading,
+    fetchingDetails,
     error,
     processing,
     handleMovieSelect,
@@ -130,7 +154,8 @@ export function useApproval() {
 }
 
 function MovieListItem({ movie, isSelected, onClick }) {
-  const directorName = movie.diretores?.[0]?.nome || movie.diretores?.[0]?.name || "Diretor desconhecido";
+  const directors = normalizeTags(movie.diretores);
+  const directorName = directors[0] || "Diretor desconhecido";
 
   return (
     <article
@@ -157,9 +182,13 @@ function MovieListItem({ movie, isSelected, onClick }) {
 }
 
 function BasicInformation({ movie }) {
-  const producerNames = movie.produtoras?.map(p => p.nome || p.name).join(", ") || "Não informado";
-  const languageNames = movie.linguagens?.map(l => l.nome || l.name || l).join(", ") || "Não informado";
-  const countryNames = movie.paises_origem?.map(c => c.nome || c.name || c).join(", ") || "Não informado";
+  // Use produtoras array, fallback to produtora_principal string
+  const producersList = normalizeTags(movie.produtoras).length > 0
+    ? normalizeTags(movie.produtoras)
+    : (movie.produtora_principal ? [movie.produtora_principal] : []);
+  const producers = producersList.join(", ") || "Não informado";
+  const languages = normalizeTags(movie.linguagens).join(", ") || "Não informado";
+  const countries = normalizeTags(movie.paises_origem).join(", ") || "Não informado";
 
   return (
     <div className={styles.basicInfo}>
@@ -174,7 +203,6 @@ function BasicInformation({ movie }) {
 
       <div className={styles.infoSection}>
         <h3 className={styles.sectionTitle}>Informações Básicas</h3>
-        <div className={styles.sectionDivider} />
 
         <div className={styles.metadataRow}>
           <div className={styles.metadataField}>
@@ -238,14 +266,15 @@ function AdditionalInformation({ movie }) {
   const categories = normalizeTags(movie.categorias);
   const directors = normalizeTags(movie.diretores);
   const actors = normalizeTags(movie.atores);
-  const producers = normalizeTags(movie.produtoras);
+  // Use produtoras array, fallback to produtora_principal string
+  const producers = normalizeTags(movie.produtoras).length > 0
+    ? normalizeTags(movie.produtoras)
+    : (movie.produtora_principal ? [movie.produtora_principal] : []);
   const languages = normalizeTags(movie.linguagens);
-  const countries = normalizeTags(movie.paises_origem);
 
   return (
     <div className={styles.additionalInfo}>
       <h3 className={styles.sectionTitle}>Informações Adicionais</h3>
-      <div className={styles.sectionDivider} />
 
       <div className={styles.categoriesGrid}>
         <InformationCategory label="Categorias" tags={categories} />
@@ -253,7 +282,6 @@ function AdditionalInformation({ movie }) {
         <InformationCategory label="Atores" tags={actors} />
         <InformationCategory label="Produtoras" tags={producers} />
         <InformationCategory label="Idiomas" tags={languages} />
-        <InformationCategory label="Países" tags={countries} />
       </div>
     </div>
   );
@@ -266,7 +294,6 @@ function ApprovalActions({ onApprove, onReject, processing }) {
         variant="secondary"
         onClick={onReject}
         disabled={processing}
-        className={styles.rejectButton}
       >
         Rejeitar
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -280,7 +307,6 @@ function ApprovalActions({ onApprove, onReject, processing }) {
         onClick={onApprove}
         disabled={processing}
         loading={processing}
-        className={styles.approveButton}
       >
         Aprovar
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -296,6 +322,7 @@ export default function Approval() {
     pendingMovies,
     selectedMovie,
     loading,
+    fetchingDetails,
     error,
     processing,
     handleMovieSelect,
@@ -322,12 +349,12 @@ export default function Approval() {
 
   return (
     <div className={styles.pageContainer}>
-      <header className={styles.pageHeader}>
+      <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Caixa de Aprovações</h1>
         <p className={styles.pageSubtitle}>
           Faça parte da maior comunidade de cinefilia do Brasil!
         </p>
-      </header>
+      </div>
 
       <div className={styles.mainLayout}>
         {/* Left Column - Pending Approvals List */}
@@ -361,13 +388,23 @@ export default function Approval() {
         {selectedMovie && (
           <main className={styles.rightColumn}>
             <div className={styles.detailCard}>
-              <BasicInformation movie={selectedMovie} />
-              <AdditionalInformation movie={selectedMovie} />
-              <ApprovalActions
-                onApprove={handleApprove}
-                onReject={handleReject}
-                processing={processing}
-              />
+              {fetchingDetails && (
+                <div className={styles.detailLoading}>
+                  <div className={styles.spinner} />
+                  <p>Carregando detalhes do filme...</p>
+                </div>
+              )}
+              {!fetchingDetails && (
+                <>
+                  <BasicInformation movie={selectedMovie} />
+                  <AdditionalInformation movie={selectedMovie} />
+                  <ApprovalActions
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    processing={processing}
+                  />
+                </>
+              )}
             </div>
           </main>
         )}
