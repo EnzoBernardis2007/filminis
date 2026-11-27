@@ -1,0 +1,582 @@
+/* ========================================
+   MovieEdit - Movie Editing Form with Preview
+   ======================================== */
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  background-color: #1A2A1D;
+  border: 1px solid #284A2F;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #fff;
+  gap: 1rem;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+.header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #284A2F;
+}
+
+.title {
+  margin: 0.5rem 0 0.25rem;
+  color: #24D44A;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  color: #9A9A9A;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* ========================================
+   Form Sections
+   ======================================== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionTitle {
+  margin: 0 0 1rem;
+  color: #24D44A;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #526F54;
+}
+
+/* ========================================
+   Field Styles (using Field component)
+   ======================================== */
+.field {
+  width: 100%;
+}
+
+.fieldGroup {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.fieldGroup > .field {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Input and Textarea base styles */
+.input {
+  height: 48px;
+  border: 2px solid #526F54;
+  border-radius: 8px;
+  background-color: #111F10;
+  padding: 0 1rem;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: #718A73;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.input:disabled,
+.input[data-disabled="true"] {
+  border-color: #3A4D3B;
+  background-color: #1A2A1D;
+  color: #A6B8A8;
+  cursor: not-allowed;
+}
+
+.input[data-invalid="true"] {
+  border-color: #FF8080;
+}
+
+.input[data-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(255, 128, 128, 0.3);
+}
+
+/* Textarea */
+.textarea {
+  min-height: 120px;
+  border: 2px solid #526F54;
+  border-radius: 8px;
+  background-color: #111F10;
+  padding: 1rem;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea::placeholder {
+  color: #718A73;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3);
+}
+
+.textarea:disabled {
+  border-color: #3A4D3B;
+  background-color: #1A2A1D;
+  color: #A6B8A8;
+  cursor: not-allowed;
+}
+
+.textarea[data-invalid="true"] {
+  border-color: #FF8080;
+}
+
+.textarea[data-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(255, 128, 128, 0.3);
+}
+
+/* Current poster preview */
+.currentPoster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #111F10;
+  border: 1px solid #284A2F;
+  border-radius: 8px;
+}
+
+.currentPoster span {
+  color: #A6A6A6;
+  font-size: 13px;
+}
+
+.currentPoster img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  border: 1px solid #284A2F;
+}
+
+/* ========================================
+   Combobox Integration Styles
+   ======================================== */
+.combobox {
+  width: 100%;
+}
+
+/* Override combobox trigger to match form input height */
+.combobox :global(.triggerWrapper) {
+  height: 48px !important;
+  border: 2px solid #526F54 !important;
+  background-color: #111F10 !important;
+  border-radius: 8px !important;
+}
+
+.combobox :global(.triggerWrapper):hover:not(.triggerWrapperDisabled) {
+  border-color: #24D44A !important;
+}
+
+.combobox :global(.triggerWrapperOpen) {
+  border-color: #24D44A !important;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.3) !important;
+}
+
+.combobox :global(.triggerInput) {
+  color: white !important;
+  font-size: 16px !important;
+}
+
+.combobox :global(.triggerInput)::placeholder {
+  color: #718A73 !important;
+}
+
+.combobox :global(.triggerInputReadOnly) {
+  color: #24D44A !important;
+  font-weight: 500 !important;
+}
+
+.combobox :global(.chipAnother) {
+  height: 48px !important;
+  background-color: #2C3F2A !important;
+  border: 2px solid #526F54 !important;
+  border-radius: 8px !important;
+  color: #B9D2BA !important;
+}
+
+.combobox :global(.chipRemove) {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.combobox :global(.bigWrapper) {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Combobox dropdown content */
+.combobox :global(.content) {
+  border: 2px solid #526F54 !important;
+  border-radius: 8px !important;
+  background-color: #111F10 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  margin-top: 4px !important;
+}
+
+.combobox :global(.option) {
+  color: white !important;
+  font-size: 15px !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.combobox :global(.option:hover),
+.combobox :global(.option[data-highlighted="true"]) {
+  background-color: #1A2A1D !important;
+  color: #24D44A !important;
+}
+
+.combobox :global(.optionSelected) {
+  color: #24D44A !important;
+  font-weight: 500 !important;
+}
+
+.combobox :global(.checkIcon) {
+  color: #24D44A !important;
+}
+
+.combobox :global(.emptyState) {
+  color: #718A73 !important;
+}
+
+/* ========================================
+   Form Actions / Navigation Buttons
+   ======================================== */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #284A2F;
+}
+
+/* ========================================
+   Status Messages
+   ======================================== */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 128, 128, 0.15);
+  border: 1px solid #FF8080;
+  border-radius: 8px;
+  color: #FF8080;
+  font-size: 14px;
+  animation: slideIn 200ms ease;
+}
+
+.successMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background-color: rgba(36, 212, 74, 0.15);
+  border: 1px solid #24D44A;
+  border-radius: 8px;
+  color: #24D44A;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideIn 200ms ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Modal / Preview
+   ======================================== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+  animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background-color: #1A2A1D;
+  border: 1px solid #284A2F;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 200ms ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #284A2F;
+}
+
+.modalTitle {
+  margin: 0;
+  color: #24D44A;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  color: #A6A6A6;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modalClose:hover {
+  background-color: #2C3F2A;
+  color: #fff;
+}
+
+.modalContent {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalDescription {
+  margin: 0 0 1.5rem;
+  color: #A6A6A6;
+  font-size: 14px;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.previewColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.previewColumnTitle {
+  margin: 0 0 1rem;
+  color: #24D44A;
+  font-size: 16px;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #526F54;
+}
+
+.previewRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background-color: #111F10;
+  border: 1px solid #284A2F;
+  border-radius: 8px;
+}
+
+.previewRow.changed {
+  border-color: #24D44A;
+  background-color: rgba(36, 212, 74, 0.1);
+}
+
+.previewLabel {
+  color: #718A73;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.previewValue {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.previewValue.original {
+  color: #A6A6A6;
+}
+
+.previewValue.edited {
+  color: #fff;
+}
+
+.previewValue em {
+  color: #718A73;
+  font-style: italic;
+}
+
+.changeIndicator {
+  color: #24D44A;
+  font-size: 12px;
+  margin-left: 0.5rem;
+}
+
+/* Preview Image Styles */
+.previewImageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 4px;
+  border: 1px solid #284A2F;
+  object-fit: contain;
+  background-color: #111F10;
+}
+
+.previewImageUrl {
+  color: #718A73;
+  font-size: 11px;
+  font-family: monospace;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #284A2F;
+  background-color: #111F10;
+}
+
+/* ========================================
+   Focus Visible Styles for Accessibility
+   ======================================== */
+*:focus-visible {
+  outline: none;
+}
+
+.input:focus-visible,
+.textarea:focus-visible,
+.combobox :global(.triggerWrapper):focus-visible {
+  border-color: #24D44A;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.4);
+}
+
+.modalClose:focus-visible,
+.formActions button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(36, 212, 74, 0.4);
+}
+
+/* ========================================
+   Draft Banner Styles
+   ======================================== */
+.draftBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 184, 0, 0.15);
+  border: 1px solid #FFB800;
+  border-radius: 8px;
+  color: #FFB800;
+  font-size: 14px;
+  animation: slideIn 200ms ease;
+  flex-wrap: wrap;
+}
+
+.draftBannerContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #FFB800;
+  font-weight: 500;
+}
+
+.draftBannerActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}

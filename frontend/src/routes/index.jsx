@@ -3,11 +3,12 @@ import DefaultLayout from '../layout/DefaultLayout'
 import Landpage from '../pages/landpage/Landpage';
 import Movies from '../pages/movies/Movies';
 import MovieDetails from '../pages/movies/MovieDetails';
+import MovieEdit from '../pages/movies/MovieEdit';
 import Login from '../pages/login/Login';
 import Profile from '../pages/profile/Profile';
 import RequestMovie from '../pages/movies/RequestMovie'
 import Approval from '../pages/approval/Approval'
-import { ProtectedRoute, PublicRoute } from '../components/ProtectedRoute';
+import { ProtectedRoute, PublicRoute, AdminProtectedRoute } from '../components/ProtectedRoute';
 
 export function AppRoutes() {
   return (
@@ -17,6 +18,14 @@ export function AppRoutes() {
           <Route index element={<Landpage />} />
           <Route path='movies' element={<Movies />} />
           <Route path='movies/:id' element={<MovieDetails />} />
+          <Route
+            path='movies/:id/edit'
+            element={
+              <AdminProtectedRoute>
+                <MovieEdit />
+              </AdminProtectedRoute>
+            }
+          />
           <Route
             path='profile'
             element={

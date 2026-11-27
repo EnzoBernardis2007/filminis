@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import styles from "./movieDetails.module.css";
 import posterPlaceholder from "../../assets/poster.png";
@@ -98,6 +98,7 @@ export function useMovieDetails() {
 }
 
 export default function MovieDetails() {
+  const { id } = useParams();
   const { movie, loading, error, handleBack, deleting, handleDelete } = useMovieDetails();
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState("synopsis");
@@ -142,19 +143,26 @@ export default function MovieDetails() {
         </div>
         <div className={styles.columnTwo}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '8px', flexWrap: 'wrap' }}>
               <h2 className={styles.title}>
                 {movie.titulo} <span>({movie.ano})</span>
               </h2>
               {isAdmin && (
-                <Button
-                  variant="danger"
-                  loading={deleting}
-                  onClick={handleDelete}
-                  iconPosition="left"
-                >
-                  Deletar Filme
-                </Button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link to={`/movies/${id}/edit`}>
+                    <Button variant="outline" iconPosition="left">
+                      Editar Filme
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="danger"
+                    loading={deleting}
+                    onClick={handleDelete}
+                    iconPosition="left"
+                  >
+                    Deletar Filme
+                  </Button>
+                </div>
               )}
             </div>
 
