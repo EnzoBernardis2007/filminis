@@ -64,6 +64,77 @@ export function useApproval() {
     fetchMovies();
   }, [api]);
 
+  // Fetch detailed info for all pending movies to enrich the list with directors, etc.
+  // Uses sequential batching to avoid overwhelming the backend (DoS protection)
+  // Runs only once on mount (api dependency) to prevent infinite loops
+  useEffect(() => {
+    if (allMovies.length === 0) return;
+
+    const pending = allMovies.filter(m => m.istatus === "pendente" || m.status === "pendente");
+    if (pending.length === 0) return;
+
+    let cancelled = false;
+
+    const fetchPendingDetails = async () => {
+      const BATCH_SIZE = 3; // Process 3 movies at a time
+      const BATCH_DELAY_MS = 200; // Wait 200ms between batches
+
+      try {
+        // Use functional update to avoid depending on allMovies in closure
+        // We'll collect all results and do a single final update
+        const detailedResults = [];
+
+        for (let i = 0; i < pending.length; i += BATCH_SIZE) {
+          if (cancelled) return;
+
+          const batch = pending.slice(i, i + BATCH_SIZE);
+
+          // Process batch in parallel
+          const batchResults = await Promise.all(
+            batch.map(movie => api.movieById(movie.id).catch(err => {
+              console.error(`Erro ao buscar detalhes do filme ${movie.id}:`, err);
+              return null;
+            }))
+          );
+
+          detailedResults.push(...batchResults.map((detailedMovie, batchIndex) => ({
+            movieId: batch[batchIndex].id,
+            data: detailedMovie
+          })));
+
+          // Delay before next batch (except last batch)
+          if (i + BATCH_SIZE < pending.length && !cancelled) {
+            await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+          }
+        }
+
+        // Single state update at the end with all results
+        if (!cancelled && detailedResults.length > 0) {
+          setAllMovies(prevMovies => {
+            const enrichedMovies = [...prevMovies];
+            detailedResults.forEach(({ movieId, data }) => {
+              if (data) {
+                const movieIndex = enrichedMovies.findIndex(m => m.id === movieId);
+                if (movieIndex !== -1) {
+                  enrichedMovies[movieIndex] = { ...enrichedMovies[movieIndex], ...data };
+                }
+              }
+            });
+            return enrichedMovies;
+          });
+        }
+      } catch (err) {
+        console.error("Erro ao buscar detalhes dos filmes pendentes:", err);
+      }
+    };
+
+    fetchPendingDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [api]); // Only depend on api, not allMovies
+
   // Fetch detailed movie information when a movie is selected
   useEffect(() => {
     if (!selectedMovie) return;
@@ -250,14 +321,27 @@ function InformationCategory({ label, tags }) {
 
 /**
  * Normalizes a field that can be either an array of objects or a comma-separated string
+ * Handles various object property names for the label (nome, name, title, director, diretor, etc.)
+ * Also handles the ' | ' separator used by the backend's GROUP_CONCAT for diretores/atores
  */
 function normalizeTags(field) {
   if (!field) return [];
   if (Array.isArray(field)) {
-    return field.map(item => item?.nome || item?.name || item).filter(Boolean);
+    return field
+      .map(item => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') {
+          // Try common property names for the label
+          return item.nome || item.name || item.title || item.titulo ||
+                 item.director || item.diretor || item.label || item.value || item;
+        }
+        return item;
+      })
+      .filter(Boolean);
   }
   if (typeof field === 'string') {
-    return field.split(',').map(s => s.trim()).filter(Boolean);
+    // Split on both comma and ' | ' (backend GROUP_CONCAT separator)
+    return field.split(/[|,]/).map(s => s.trim()).filter(Boolean);
   }
   return [];
 }

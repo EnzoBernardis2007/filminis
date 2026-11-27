@@ -338,6 +338,41 @@ export function createApi(getAuth) {
             return data;
         },
 
+        /**
+         * Updates an existing movie (PATCH /filme?id=...)
+         * Requires admin authentication
+         * @param {string|number} id - Movie ID
+         * @param {object} movieData - Movie data to update
+         * @param {string} [movieData.titulo] - Movie title
+         * @param {number} [movieData.id_produtora_principal] - Primary production company ID
+         * @param {number|string} [movieData.orcamento] - Budget (number or formatted string like "R$ 1.000.000,00")
+         * @param {string} [movieData.duracao] - Duration (e.g., "120min")
+         * @param {string} [movieData.sinopse] - Movie synopsis
+         * @param {number} [movieData.ano] - Release year
+         * @param {string} [movieData.imagem] - Poster image URL
+         * @param {number[]} [movieData.atores] - Array of actor IDs
+         * @param {number[]} [movieData.diretores] - Array of director IDs
+         * @param {number[]} [movieData.categorias] - Array of category IDs
+         * @param {number[]} [movieData.linguagens] - Array of language IDs
+         * @param {number[]} [movieData.paises] - Array of country IDs
+         * @param {number[]} [movieData.produtoras] - Array of production company IDs
+         * @returns {Promise<object>} Success message
+         */
+        async updateMovie(id, movieData) {
+            const response = await authenticatedFetch(`/filme?id=${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(movieData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao atualizar filme');
+            }
+
+            return data;
+        },
+
         // ========== LISTAGEM DE DADOS AUXILIARES (Endpoints públicos) ==========
 
         /**
